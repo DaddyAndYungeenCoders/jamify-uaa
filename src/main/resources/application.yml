@@ -1,0 +1,57 @@
+# application.yml
+spring:
+  application:
+    name: jamify-uaa
+
+  security:
+    oauth2:
+      client:
+        registration:
+#          keycloak:
+#            client-id: your-client-id
+#            client-secret: your-client-secret
+#            authorization-grant-type: authorization_code
+#            scope: openid, profile, email
+          spotify:
+            client-id:
+            client-secret:
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/spotify"
+            # https://developer.spotify.com/documentation/web-api/concepts/scopes
+            scope: user-read-email, user-read-private, playlist-read-private, playlist-read-collaborative, playlist-modify-public, playlist-modify-private, user-top-read, user-library-read, user-read-currently-playing
+        provider:
+#          keycloak:
+#            issuer-uri: http://localhost:7080/realms/jamify
+          spotify:
+            authorization-uri: https://accounts.spotify.com/authorize
+            token-uri: https://accounts.spotify.com/api/token
+            user-info-uri: https://api.spotify.com/v1/me
+            user-name-attribute: id
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.spotify.com/
+
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/jamify-uaa
+    username: postgres
+    password: postgres
+
+  liquibase:
+    change-log: db/changelog/db.changelog-master.xml
+    user: postgres
+    password: postgres
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8081
+  servlet:
+    session:
+      cookie:
+        name: jamify-auth
