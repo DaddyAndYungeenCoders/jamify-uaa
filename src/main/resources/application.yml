@@ -7,21 +7,14 @@ spring:
     oauth2:
       client:
         registration:
-#          keycloak:
-#            client-id: your-client-id
-#            client-secret: your-client-secret
-#            authorization-grant-type: authorization_code
-#            scope: openid, profile, email
           spotify:
-            client-id:
-            client-secret:
+            client-id: ${SPOTIFY_CLIENT_ID}
+            client-secret: ${SPOTIFY_CLIENT_SECRET}
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/spotify"
             # https://developer.spotify.com/documentation/web-api/concepts/scopes
             scope: user-read-email, user-read-private, playlist-read-private, playlist-read-collaborative, playlist-modify-public, playlist-modify-private, user-top-read, user-library-read, user-read-currently-playing
         provider:
-#          keycloak:
-#            issuer-uri: http://localhost:7080/realms/jamify
           spotify:
             authorization-uri: https://accounts.spotify.com/authorize
             token-uri: https://accounts.spotify.com/api/token
@@ -29,7 +22,7 @@ spring:
             user-name-attribute: id
       resourceserver:
         jwt:
-          issuer-uri: https://accounts.spotify.com/
+          issuer-uri: https://accounts.spotify.com
 
 
   datasource:
@@ -55,3 +48,14 @@ server:
     session:
       cookie:
         name: jamify-auth
+        secure: true
+
+logging:
+  level:
+    org.springframework.web: debug
+    org.springframework.security: debug
+    com.jamify.uaa.config.com.jamify.uaa.config.LoggingFilter: DEBUG
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 86400000

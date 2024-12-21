@@ -10,6 +10,7 @@ import org.springframework.core.env.ConfigurableEnvironment;
 
 @SpringBootApplication
 @EnableConfigurationProperties({LiquibaseProperties.class})
+//@EnableOAuth2Client
 public class UaaApplication {
 	private static final Logger log = LoggerFactory.getLogger(UaaApplication.class);
 
