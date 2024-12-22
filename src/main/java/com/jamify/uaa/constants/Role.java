@@ -1,6 +1,14 @@
 package com.jamify.uaa.constants;
 
-public class Role {
-    public static final String USER = "ROLE_USER";
-    public static final String ADMIN = "ROLE_ADMIN";
+import lombok.Getter;
+
+@Getter
+public enum Role {
+    USER("ROLE_USER"), ADMIN("ROLE_ADMIN");
+
+    private final String value;
+
+    Role(String value) {
+        this.value = value;
+    }
 }

@@ -5,6 +5,7 @@ import com.jamify.uaa.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -16,6 +17,12 @@ import java.io.IOException;
  */
 @Slf4j
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
+
+    @Value("${gateway.url}")
+    private String gatewayUrl;
+
+    @Value("${gateway.service.front}")
+    private String frontendService;
 
     private final JwtService jwtService;
     private final UserService userService;
@@ -76,7 +83,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         String token = jwtService.generateToken(user);
 
         // Redirect to the frontend with the token
-        String redirectUrl = "http://localhost:5173/oauth/callback?token=" + token;
+        String redirectUrl = gatewayUrl + frontendService + "/?token=" + token;
         response.sendRedirect(redirectUrl);
     }
 }

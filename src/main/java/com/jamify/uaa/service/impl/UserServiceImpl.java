@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
             UserEntity user = new UserEntity();
             user.setEmail(email);
             user.setName(name);
-            user.setRole(Role.USER);
+            user.setRole(Role.USER.getValue());
             user.setCountry(country);
             user.setProviderId(id);
             user.setImgUrl(imgUrl);

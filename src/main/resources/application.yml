@@ -53,3 +53,8 @@ server:
 logging:
   level:
     root: info
+
+gateway:
+    url: https://gateway_url_when_implemented
+    service:
+      front: /mobile-app
