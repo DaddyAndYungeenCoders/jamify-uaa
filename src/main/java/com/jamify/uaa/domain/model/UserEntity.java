@@ -1,10 +1,8 @@
 package com.jamify.uaa.domain.model;
 
-import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
-
-import java.util.List;
 
 @Entity
 public class UserEntity extends AbstractEntity<Long> {
@@ -16,6 +14,8 @@ public class UserEntity extends AbstractEntity<Long> {
     private String country;
     private String provider;
     private String providerId;
+
+    @Column(length = 1024) // for long imgurl (eg. spotify)
     private String imgUrl;
 
 //    private @ElementCollection List<String> playlists;

@@ -4,6 +4,8 @@ import com.jamify.uaa.config.LoggingFilter;
 import com.jamify.uaa.config.service.CustomAuthenticationSuccessHandler;
 import com.jamify.uaa.config.service.CustomOAuth2UserService;
 import com.jamify.uaa.config.service.JwtService;
+import com.jamify.uaa.constants.Role;
+import com.jamify.uaa.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -27,7 +29,7 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService, JwtAuthenticationFilter jwtAuthenticationFilter, UserService userService) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
@@ -38,14 +40,14 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/auth/**", "/login/**", "/oauth2/**").permitAll()
-                        .requestMatchers("/user").hasAuthority("ROLE_USER")
+                        .requestMatchers("/user").hasAuthority(Role.USER)
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
-                        .successHandler(oAuth2AuthenticationSuccessHandler())
+                        .successHandler(oAuth2AuthenticationSuccessHandler(userService))
                 )
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
@@ -60,8 +62,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler() {
-        return new CustomAuthenticationSuccessHandler(jwtService());
+    public AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler(UserService userService) {
+        return new CustomAuthenticationSuccessHandler(jwtService(), userService);
     }
 
     @Bean

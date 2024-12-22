@@ -1,5 +1,6 @@
 package com.jamify.uaa.config.service;
 
+import com.jamify.uaa.domain.model.UserEntity;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -22,15 +23,16 @@ public class JwtService {
         key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
     }
 
-    public String generateToken(CustomOAuth2User user) {
+    public String generateToken(UserEntity user) {
         log.info("Generating token for user: {}", user.getName());
         return Jwts.builder()
                 .setSubject(user.getName())
-                .claim("email", user.getAttribute("email"))
-                .claim("id", user.getAttribute("id"))
-                .claim("name", user.getAttribute("display_name"))
-                .claim("country", user.getAttribute("country"))
-                .claim("roles", List.of("ROLE_USER"))
+                .claim("email", user.getEmail())
+                .claim("roles", List.of(user.getRole()))
+                .claim("country", user.getCountry())
+                .claim("provider", user.getProvider())
+                .claim("id", user.getId())
+
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 86400000))
                 .signWith(key)

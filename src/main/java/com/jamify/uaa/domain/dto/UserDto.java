@@ -5,6 +5,7 @@ import java.util.List;
 public class UserDto {
     private String name;
     private String email;
+    private String imgUrl;
     private String role;
 
     private List<String> playlists;
@@ -40,6 +41,14 @@ public class UserDto {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
     }
 
     public String getRole() {

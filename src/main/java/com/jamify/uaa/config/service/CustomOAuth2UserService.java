@@ -23,28 +23,28 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oauth2User = super.loadUser(userRequest);
 
-        String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        String email = null;
-        String name = null;
-        String country = null;
-        String id = null;
-        String imgUrl = null;
-        String provider = null;
-
-        if ("spotify".equals(registrationId)) {
-            email = oauth2User.getAttribute("email");
-            name = oauth2User.getAttribute("display_name");
-            country = oauth2User.getAttribute("country");
-            id = oauth2User.getAttribute("id");
-            provider = "spotify";
-        } else if ("deezer".equals(registrationId)) {
-            // TODO: Handle Deezer attributes
-        }
-
-        log.info("User {} ({}) logged in with {}", name, email, registrationId);
-
-        // Create user in the application if not already exists
-        userService.createUserIfNotExists(email, name, country, id, imgUrl, provider);
+//        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+//        String email = null;
+//        String name = null;
+//        String country = null;
+//        String id = null;
+//        String imgUrl = null;
+//        String provider = null;
+//
+//        if ("spotify".equals(registrationId)) {
+//            email = oauth2User.getAttribute("email");
+//            name = oauth2User.getAttribute("display_name");
+//            country = oauth2User.getAttribute("country");
+//            id = oauth2User.getAttribute("id");
+//            provider = "spotify";
+//        } else if ("deezer".equals(registrationId)) {
+//            // TODO: Handle Deezer attributes
+//        }
+//
+//        log.info("User {} ({}) logged in with {}", name, email, registrationId);
+//
+//        // Create user in the application if not already exists
+//        userService.createUserIfNotExists(email, name, country, id, imgUrl, provider);
 
         return new CustomOAuth2User(oauth2User);
     }
