@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/jamify-uaa
+    username: postgres
+    password: postgres
+
+  liquibase:
+    user: postgres
+    password: postgres
+
+logging:
+  level:
+    org.springframework.web: debug
+    org.springframework.security: debug
+    com.jamify.uaa.config.com.jamify.uaa.config.LoggingFilter: DEBUG

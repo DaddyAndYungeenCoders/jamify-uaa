@@ -11,18 +11,35 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 
 import java.io.IOException;
 
+/**
+ * Custom authentication success handler to process OAuth2 login success events.
+ */
 @Slf4j
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtService jwtService;
-
     private final UserService userService;
 
+    /**
+     * Constructor for CustomAuthenticationSuccessHandler.
+     *
+     * @param jwtService  the service to handle JWT operations
+     * @param userService the service to handle user operations
+     */
     public CustomAuthenticationSuccessHandler(JwtService jwtService, UserService userService) {
         this.jwtService = jwtService;
         this.userService = userService;
     }
 
+    /**
+     * Handles successful authentication by processing the OAuth2 user details,
+     * creating the user if not already exists, and redirecting with a JWT token.
+     *
+     * @param request        the HTTP request
+     * @param response       the HTTP response
+     * @param authentication the authentication object
+     * @throws IOException if an I/O error occurs during redirection
+     */
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
@@ -30,9 +47,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         CustomOAuth2User oauthUser = (CustomOAuth2User) authentication.getPrincipal();
         log.debug("OAuth2 user: {}", oauthUser);
 
+        // Get the provider (authorizedClientRegistrationId) from the authentication
         String provider = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
 
-        // handling different providers
+        // Handling different providers
         switch (provider) {
             case "spotify":
                 log.info("User {} ({}) logged in with Spotify", oauthUser.getName(), oauthUser.getEmail());
@@ -44,7 +62,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                 log.warn("Unknown provider: {}", provider);
         }
 
-        // create user in the application if not already exists
+        // Create user in the application if not already exists
         userService.createUserIfNotExists(
                 oauthUser.getEmail(),
                 oauthUser.getName(),
@@ -55,12 +73,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         );
 
         UserEntity user = userService.getUserByEmail(oauthUser.getEmail());
-
-
-
         String token = jwtService.generateToken(user);
 
-        // Rediriger vers le frontend avec le token
+        // Redirect to the frontend with the token
         String redirectUrl = "http://localhost:5173/oauth/callback?token=" + token;
         response.sendRedirect(redirectUrl);
     }

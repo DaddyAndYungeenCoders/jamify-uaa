@@ -24,16 +24,29 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Security configuration class for the application.
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
+    /**
+     * Configures the security filter chain.
+     *
+     * @param http the HttpSecurity object to configure
+     * @param customOAuth2UserService the custom OAuth2 user service
+     * @param jwtAuthenticationFilter the JWT authentication filter
+     * @param userService the user service
+     * @return the configured SecurityFilterChain
+     * @throws Exception if an error occurs during configuration
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService, JwtAuthenticationFilter jwtAuthenticationFilter, UserService userService) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
-                .addFilterBefore(new LoggingFilter(), UsernamePasswordAuthenticationFilter.class)  // Ajout du LoggingFilter avant le filtre d'authentification
+                .addFilterBefore(new LoggingFilter(), UsernamePasswordAuthenticationFilter.class)  // Add LoggingFilter before the authentication filter
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -61,16 +74,32 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /**
+     * Creates a bean for the OAuth2 authentication success handler.
+     *
+     * @param userService the user service
+     * @return the authentication success handler
+     */
     @Bean
     public AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler(UserService userService) {
         return new CustomAuthenticationSuccessHandler(jwtService(), userService);
     }
 
+    /**
+     * Creates a bean for the JWT service.
+     *
+     * @return the JWT service
+     */
     @Bean
     public JwtService jwtService() {
         return new JwtService();
     }
 
+    /**
+     * Creates a bean for the CORS configuration source.
+     *
+     * @return the CORS configuration source
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

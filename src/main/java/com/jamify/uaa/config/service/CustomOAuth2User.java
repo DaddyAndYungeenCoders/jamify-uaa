@@ -6,7 +6,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class CustomOAuth2User implements OAuth2User {
     private final OAuth2User oauth2User;
@@ -53,4 +52,6 @@ public class CustomOAuth2User implements OAuth2User {
         }
         return null;
     }
+
+    // TODO: how do we handle multiple provider with different attributes?
 }

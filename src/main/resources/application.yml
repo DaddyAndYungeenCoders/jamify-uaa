@@ -26,14 +26,14 @@ spring:
 
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/jamify-uaa
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://${POSTGRES_URL}:${POSTGRES_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
 
   liquibase:
     change-log: db/changelog/db.changelog-master.xml
-    user: postgres
-    password: postgres
+    user: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
 
   jpa:
     hibernate:
@@ -52,10 +52,4 @@ server:
 
 logging:
   level:
-    org.springframework.web: debug
-    org.springframework.security: debug
-    com.jamify.uaa.config.com.jamify.uaa.config.LoggingFilter: DEBUG
-
-jwt:
-  secret: ${JWT_SECRET}
-  expiration: 86400000
+    root: info

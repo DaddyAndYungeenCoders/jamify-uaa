@@ -26,38 +26,14 @@ public class UserController {
         this.userMapper = userMapper;
     }
 
-//    @GetMapping
-//    public ResponseEntity<UserDto> getUser(@AuthenticationPrincipal OAuth2User principal) {
-//        System.out.println("Principal: " + principal); // Debug log
-//        if (principal == null) {
-//            System.out.println("Principal is null!"); // Debug log
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-//        }
-//
-//        UserDto userDTO = new UserDto();
-//        userDTO.setEmail(principal.getAttribute("email"));
-//        userDTO.setName(principal.getAttribute("display_name"));
-//        return ResponseEntity.ok(userDTO);
-//    }
-
-//    @GetMapping
-//    public ResponseEntity<UserDto> getUser(@RequestHeader("Authorization") String token) {
-//        log.info("Token: {}", token);
-//
-//        UserDto userDTO = new UserDto();
-//        userDTO.setEmail("gmail");
-//        userDTO.setName("name");
-//        return ResponseEntity.ok(userDTO);
-//    }
-
     @GetMapping
     public ResponseEntity<UserDto> getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String principal = authentication.getPrincipal().toString();
         log.info("Logged in user: {}", principal);
-
         return ResponseEntity.ok(userMapper.toDto(userService.getUserByEmail(principal)));
     }
 
+    //TODO: Endpoints
 
 }
