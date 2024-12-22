@@ -1,0 +1,60 @@
+# application.yml
+spring:
+  application:
+    name: jamify-uaa
+
+  security:
+    oauth2:
+      client:
+        registration:
+          spotify:
+            client-id: ${SPOTIFY_CLIENT_ID}
+            client-secret: ${SPOTIFY_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/spotify"
+            # https://developer.spotify.com/documentation/web-api/concepts/scopes
+            scope: user-read-email, user-read-private, playlist-read-private, playlist-read-collaborative, playlist-modify-public, playlist-modify-private, user-top-read, user-library-read, user-read-currently-playing
+        provider:
+          spotify:
+            authorization-uri: https://accounts.spotify.com/authorize
+            token-uri: https://accounts.spotify.com/api/token
+            user-info-uri: https://api.spotify.com/v1/me
+            user-name-attribute: id
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.spotify.com
+
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+  liquibase:
+    change-log: db/changelog/db.changelog-master.xml
+    user: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8081
+  servlet:
+    session:
+      cookie:
+        name: jamify-auth
+        secure: true
+
+logging:
+  level:
+    root: info
+
+gateway:
+    url: https://gateway_url_when_implemented
+    service:
+      front: /mobile-app
