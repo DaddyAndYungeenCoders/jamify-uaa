@@ -63,9 +63,9 @@ Jamify-uaa is a microservice responsible for managing users, authentication, and
 
 ## Usage
 
-1. Run the application:
+1. Run the application with the `dev` profile in local development:
     ```sh
-    mvn spring-boot:run
+    mvn spring-boot:run -Dspring-boot.run.profiles=dev
     ```
 
 2. Access the application at `http://localhost:8081`.
