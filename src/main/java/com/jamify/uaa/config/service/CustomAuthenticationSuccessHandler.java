@@ -1,5 +1,6 @@
 package com.jamify.uaa.config.service;
 
+import com.jamify.uaa.constants.AllowedProviders;
 import com.jamify.uaa.domain.model.UserEntity;
 import com.jamify.uaa.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,27 +58,38 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         // Get the provider (authorizedClientRegistrationId) from the authentication
         String provider = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
 
-        // Handling different providers
-        switch (provider) {
-            case "spotify":
-                log.info("User {} ({}) logged in with Spotify", oauthUser.getName(), oauthUser.getEmail());
-                break;
-            case "deezer":
-                log.info("User {} ({}) logged in with Deezer", oauthUser.getName(), oauthUser.getEmail());
-                break;
-            default:
-                log.warn("Unknown provider: {}", provider);
+// Verify that the provider is in the AllowedProviders enum
+        try {
+            AllowedProviders allowedProvider = AllowedProviders.valueOf(provider.toUpperCase());
+            log.info("User {} ({}) logged in with {}", oauthUser.getName(), oauthUser.getEmail(), allowedProvider.getValue());
+
+            // Handling different providers, if there are different actions to be taken
+            switch (allowedProvider) {
+                case SPOTIFY:
+                    userService.createUserIfNotExists(
+                            oauthUser.getEmail(),
+                            oauthUser.getName(),
+                            oauthUser.getCountry(),
+                            oauthUser.getId(),
+                            oauthUser.getImgUrl(),
+                            provider
+                    );
+                    break;
+                case DEEZER:
+                    // Add Deezer specific logic here
+                    break;
+                case APPLE_MUSIC:
+                    // Add Apple Music specific logic here
+                    break;
+                default:
+                    log.warn("Unhandled provider: {}", provider);
+            }
+        } catch (IllegalArgumentException e) {
+            log.warn("Unknown provider: {}", provider);
         }
 
         // Create user in the application if not already exists
-        userService.createUserIfNotExists(
-                oauthUser.getEmail(),
-                oauthUser.getName(),
-                oauthUser.getCountry(),
-                oauthUser.getId(),
-                oauthUser.getImgUrl(),
-                provider
-        );
+
 
         UserEntity user = userService.getUserByEmail(oauthUser.getEmail());
         String token = jwtService.generateToken(user);
