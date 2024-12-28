@@ -2,12 +2,16 @@ package com.jamify.uaa.config.service;
 
 import com.jamify.uaa.domain.model.UserEntity;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
+import java.io.File;
+import java.nio.file.Files;
+import java.security.KeyFactory;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
@@ -17,14 +21,25 @@ import java.util.List;
 @Slf4j
 @Service
 public class JwtService {
-    private final Key key;
+
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String issuerUri;
+
+    @Value("${security.jwt.private-key}")
+    private String privateKeyPath;
+
+    private RSAPrivateKey key;
 
     /**
      * Constructor for JwtService.
      * Initializes the signing key for JWT.
      */
     public JwtService() {
-        key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+        try {
+            key = loadPrivateKey(new File(privateKeyPath));
+        } catch (Exception e) {
+            log.error("Error loading private key: {}", e.getMessage());
+        }
     }
 
     /**
@@ -37,6 +52,7 @@ public class JwtService {
         log.info("Generating token for user: {}", user.getName());
         return Jwts.builder()
                 .setSubject(user.getName())
+                .setIssuer(issuerUri)
                 .claim("email", user.getEmail())
                 .claim("roles", List.of(user.getRole()))
                 .claim("country", user.getCountry())
@@ -95,5 +111,20 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody()
                 .get("roles", List.class);
+    }
+
+    private RSAPrivateKey loadPrivateKey(File file) throws Exception {
+        String key = Files.readString(file.toPath());
+        String privateKeyPEM = key
+                .replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----BEGIN RSA PRIVATE KEY-----", "")  // Support both formats
+                .replace("-----END PRIVATE KEY-----", "")
+                .replace("-----END RSA PRIVATE KEY-----", "")
+                .replaceAll("\\s", "");
+
+        byte[] encoded = Base64.getDecoder().decode(privateKeyPEM);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
+        return (RSAPrivateKey) keyFactory.generatePrivate(keySpec);
     }
 }

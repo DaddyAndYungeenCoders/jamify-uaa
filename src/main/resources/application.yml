@@ -22,7 +22,8 @@ spring:
             user-name-attribute: id
       resourceserver:
         jwt:
-          issuer-uri: https://accounts.spotify.com
+          # TODO
+          issuer-uri: http://localhost:8081
 
 
   datasource:
@@ -58,3 +59,10 @@ gateway:
     url: https://gateway_url_when_implemented
     service:
       front: /mobile-app
+
+security:
+  api-key:
+    jamify-engine: ${JAMIFY_ENGINE_API_KEY}
+  jwt:
+    private-key: ${JWT_PRIVATE_KEY}
+    public-key: ${JWT_PUBLIC_KEY}

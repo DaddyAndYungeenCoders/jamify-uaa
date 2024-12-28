@@ -60,6 +60,12 @@ Jamify-uaa is a microservice responsible for managing users, authentication, and
     export POSTGRES_HOST=your_postgres_host eg. localhost
     export POSTGRES_PORT=your_postgres_port eg. 5432
     ```
+   
+2. To generate a pair of RSA keys for JWT token signing, run the following command:
+    ```sh
+    openssl genrsa -out private.pem 2048
+    openssl rsa -in private.pem -pubout -out public.pem
+    ```
 
 ## Usage
 

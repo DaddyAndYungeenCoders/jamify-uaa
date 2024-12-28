@@ -18,3 +18,10 @@ gateway:
   url: http://localhost:5173 # test front for now til gateway is implemented
   service:
     front: "" # no need to add /
+
+security:
+  api-key:
+    jamify-engine: super_secure_key
+  jwt:
+    private-key: private.pem
+    public-key: public.pem

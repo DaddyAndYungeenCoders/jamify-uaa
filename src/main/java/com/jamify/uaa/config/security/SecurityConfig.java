@@ -14,6 +14,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
@@ -46,7 +47,7 @@ public class SecurityConfig {
      * @throws Exception if an error occurs during configuration
      */
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService, JwtAuthenticationFilter jwtAuthenticationFilter, UserService userService) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService, JwtAuthenticationFilter jwtAuthenticationFilter, UserService userService, OAuth2AuthorizedClientService authorizedClientService) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
@@ -57,14 +58,14 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/auth/**", "/login/**", "/oauth2/**").permitAll()
-                        .requestMatchers("/user").hasAuthority(Role.USER.getValue())
+                        .requestMatchers("/api/v1/user").hasAuthority(Role.USER.getValue())
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
-                        .successHandler(oAuth2AuthenticationSuccessHandler(userService))
+                        .successHandler(oAuth2AuthenticationSuccessHandler(userService, authorizedClientService))
                 )
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
@@ -85,8 +86,8 @@ public class SecurityConfig {
      * @return the authentication success handler
      */
     @Bean
-    public AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler(UserService userService) {
-        return new CustomAuthenticationSuccessHandler(jwtService(), userService);
+    public AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler(UserService userService, OAuth2AuthorizedClientService authorizedClientService) {
+        return new CustomAuthenticationSuccessHandler(jwtService(), userService, authorizedClientService);
     }
 
     /**
