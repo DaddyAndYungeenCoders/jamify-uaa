@@ -23,5 +23,6 @@ security:
   api-key:
     jamify-engine: super_secure_key
   jwt:
-    private-key: private.pem
-    public-key: public.pem
+    # in resources folder
+    private-key: classpath:private.pem
+    public-key: classpath:public.pem

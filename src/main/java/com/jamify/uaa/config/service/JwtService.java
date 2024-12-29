@@ -2,8 +2,12 @@ package com.jamify.uaa.config.service;
 
 import com.jamify.uaa.domain.model.UserEntity;
 import io.jsonwebtoken.Jwts;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -30,15 +34,19 @@ public class JwtService {
     @Value("${security.jwt.private-key}")
     private String privateKeyPath;
 
+    @Autowired
+    private ResourceLoader resourceLoader;
+
     private RSAPrivateKey key;
 
     /**
-     * Constructor for JwtService.
      * Initializes the signing key for JWT.
      */
-    public JwtService() {
+    @PostConstruct
+    public void init() {
         try {
-            key = loadPrivateKey(new File(privateKeyPath));
+            Resource resource = resourceLoader.getResource(privateKeyPath);
+            key = loadPrivateKey(resource.getFile());
         } catch (Exception e) {
             log.error("Error loading private key: {}", e.getMessage());
         }
@@ -122,7 +130,6 @@ public class JwtService {
         }
         return Collections.emptyList();
     }
-
 
     private RSAPrivateKey loadPrivateKey(File file) throws Exception {
         String key = Files.readString(file.toPath());
