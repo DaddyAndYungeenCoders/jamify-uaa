@@ -12,8 +12,10 @@ import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Service class for handling JWT operations such as generating and validating tokens.
@@ -105,13 +107,22 @@ public class JwtService {
      */
     public List<String> getRolesFromToken(String token) {
         log.info("Getting roles from token: {}", token);
-        return Jwts.parserBuilder()
+        List<?> roles = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .get("roles", List.class);
+
+        if (roles != null) {
+            return roles.stream()
+                    .filter(role -> role instanceof String)
+                    .map(role -> (String) role)
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
+
 
     private RSAPrivateKey loadPrivateKey(File file) throws Exception {
         String key = Files.readString(file.toPath());

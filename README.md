@@ -20,8 +20,11 @@ Jamify-uaa is a microservice responsible for managing users, authentication, and
 ## Features
 
 - User management
-- OAuth2 authentication with Spotify
+- OAuth2 authentication with Music providers
+  - Once the access token is obtained, it is sent to the Jamify engine for further processing. If it's expired, the jamify-uaa will refresh it. 
 - JWT token support
+  - RSA key pair for token signing
+  - Refresh token
 - Logging of HTTP requests
 
 ## Requirements
