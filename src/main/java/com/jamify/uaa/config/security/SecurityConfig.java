@@ -57,7 +57,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/auth/**", "/login/**", "/oauth2/**").permitAll()
+                        .requestMatchers("/", "/auth/**", "/login/**", "/oauth2/**", "/oauth/.well-known/jwks.json").permitAll()
                         .requestMatchers("/api/v1/user").hasAuthority(Role.USER.getValue())
                         .anyRequest().authenticated()
                 )

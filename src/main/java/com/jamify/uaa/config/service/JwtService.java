@@ -1,6 +1,7 @@
 package com.jamify.uaa.config.service;
 
 import com.jamify.uaa.domain.model.UserEntity;
+import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,9 @@ public class JwtService {
     @Value("${security.jwt.private-key}")
     private String privateKeyPath;
 
+    @Value("${security.jwt.jwk-key-id}")
+    private String keyId;
+
     @Autowired
     private ResourceLoader resourceLoader;
 
@@ -61,6 +65,8 @@ public class JwtService {
     public String generateToken(UserEntity user) {
         log.info("Generating token for user: {}", user.getName());
         return Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setHeaderParam("kid", keyId)
                 .setSubject(user.getName())
                 .setIssuer(issuerUri)
                 .claim("email", user.getEmail())
@@ -81,7 +87,7 @@ public class JwtService {
      * @return true if the token is valid, false otherwise
      */
     public boolean validateToken(String jwt) {
-        log.info("Validating token: {}", jwt);
+        log.debug("Validating token: {}", jwt);
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt);
             return true;
@@ -98,7 +104,7 @@ public class JwtService {
      * @return the username (email) extracted from the token
      */
     public String getUsernameFromToken(String token) {
-        log.info("Getting username from token: {}", token);
+        log.debug("Getting username from token: {}", token);
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
@@ -114,7 +120,7 @@ public class JwtService {
      * @return the list of roles extracted from the token
      */
     public List<String> getRolesFromToken(String token) {
-        log.info("Getting roles from token: {}", token);
+        log.debug("Getting roles from token: {}", token);
         List<?> roles = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()

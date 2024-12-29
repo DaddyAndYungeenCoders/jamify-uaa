@@ -13,10 +13,9 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 /**
@@ -109,24 +108,25 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             log.debug("Access Token: {}", accessToken);
             // send access token to the jamify-engine microservice
             try {
+                ZonedDateTime expiresAt = ZonedDateTime.parse(Objects.requireNonNull(authorizedClient.getAccessToken().getExpiresAt()).toString());
                 UserToken userToken = new UserToken();
                 userToken.setProvider(provider);
                 userToken.setAccessToken(accessToken);
                 userToken.setEmail(oauthUser.getEmail());
-                userToken.setExpiresAt(LocalDateTime.parse(Objects.requireNonNull(authorizedClient.getAccessToken().getExpiresAt()).toString()));
+                userToken.setExpiresAt(expiresAt.toLocalDateTime());
 
-                // TODO : what does jamify engine respond with?
+                // TODO :uncomment when implemented, and what does jamify engine respond with?
                 // send the access token to the jamify-engine microservice so that it can be used to query the provider's API
-                Object res = WebClient.builder()
-                        .build()
-                        .post()
-                        .uri("http://jamify-engine/api/v1/auth/token")
-                        .bodyValue(userToken)
-                        .retrieve()
-                        .bodyToMono(String.class)
-                        .block();
+//                Object res = WebClient.builder()
+//                        .build()
+//                        .post()
+//                        .uri("http://jamify-engine/api/v1/auth/token")
+//                        .bodyValue(userToken)
+//                        .retrieve()
+//                        .bodyToMono(String.class)
+//                        .block();
             } catch (Exception e) {
-                log.error("Error while sending access token to Jamify Engine : {}", e);
+                log.error("Error while sending access token to Jamify Engine :", e);
             }
         } else {
             log.warn("No authorized client found for provider: {}", provider);

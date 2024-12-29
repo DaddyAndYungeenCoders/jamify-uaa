@@ -10,6 +10,7 @@ spring:
 
 logging:
   level:
+    com.jamify.uaa: debug
     org.springframework.web: debug
     org.springframework.security: debug
     com.jamify.uaa.config.com.jamify.uaa.config.LoggingFilter: DEBUG
@@ -26,3 +27,4 @@ security:
     # in resources folder
     private-key: classpath:private.pem
     public-key: classpath:public.pem
+    jwk-key-id: jamify-uaa-key-id
