@@ -67,3 +67,7 @@ security:
     private-key: ${JWT_PRIVATE_KEY}
     public-key: ${JWT_PUBLIC_KEY}
     jwk-key-id: ${JWK_KEY_ID}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

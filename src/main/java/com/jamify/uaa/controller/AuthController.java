@@ -1,6 +1,8 @@
 package com.jamify.uaa.controller;
 
 import com.jamify.uaa.service.TokenService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,12 @@ public class AuthController {
 
     // Jamify engine will call this endpoint if the access token is expired
     // it needs the X-API-KEY header to be set to the value of the API key
+    @Operation(summary = "Refresh access token",
+            description = "Endpoint to refresh the access token for the given provider and email.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Access token refreshed successfully."),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized.")
+            })
     @PostMapping("/refresh-token")
     public ResponseEntity<Map<String, String>> refreshAccessToken(
             @RequestHeader(value = "X-API-KEY") String apiKey,

@@ -1,11 +1,14 @@
 package com.jamify.uaa.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +28,12 @@ public class JwkController {
      * @param request the HttpServletRequest object to get request details
      * @return a map containing the JWKS with a single RSA key.
      */
+    @Operation(summary = "Get JSON Web Key Set (JWKS)",
+            description = "Endpoint to retrieve the JSON Web Key Set (JWKS).",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "JWKS retrieved successfully."),
+                    @ApiResponse(responseCode = "500", description = "Internal server error.")
+            })
     @GetMapping("/oauth/.well-known/jwks.json")
     public Map<String, Object> getJwks(HttpServletRequest request) {
         String remoteAddr = request.getRemoteAddr();
