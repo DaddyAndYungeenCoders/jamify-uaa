@@ -17,14 +17,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void createUserIfNotExists(String email, String name, String country, String id, String imgUrl, String provider) {
+    public void createUserIfNotExists(String email, String name, String country, String idFromProvider, String imgUrl, String provider) {
         if (!userRepository.existsByEmail(email)) {
             UserEntity user = new UserEntity();
             user.setEmail(email);
             user.setName(name);
             user.setRole(Role.USER.getValue());
             user.setCountry(country);
-            user.setProviderId(id);
+            user.setProviderId(idFromProvider);
             user.setImgUrl(imgUrl);
             user.setProvider(provider);
 
@@ -35,5 +35,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserEntity getUserByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public UserEntity getUserById(Long userId) {
+        return userRepository.findById(userId).orElse(null);
     }
 }

@@ -6,8 +6,8 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@Schema(description = "User token details")
-public class UserToken {
+@Schema(description = "User access token details. Will only be transferred to Jamify Engine.")
+public class UserAccessToken {
     @Schema(description = "User email", example = "user@example.com")
     private String email;
     @Schema(description = "Provider name", example = "spotify")

@@ -67,6 +67,8 @@ security:
     private-key: ${JWT_PRIVATE_KEY}
     public-key: ${JWT_PUBLIC_KEY}
     jwk-key-id: ${JWK_KEY_ID}
+    refresh-token:
+        expiration: 2592000000 # 30 day in ms
 
 springdoc:
   swagger-ui:

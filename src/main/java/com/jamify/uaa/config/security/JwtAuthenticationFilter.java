@@ -47,6 +47,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        if (request.getRequestURI().contains("/api/v1/auth/refresh-jwt-token")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         logger.info("JwtAuthenticationFilter triggered for request URL");
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {

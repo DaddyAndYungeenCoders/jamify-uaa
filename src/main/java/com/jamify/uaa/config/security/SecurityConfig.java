@@ -5,6 +5,7 @@ import com.jamify.uaa.config.service.CustomAuthenticationSuccessHandler;
 import com.jamify.uaa.config.service.CustomOAuth2UserService;
 import com.jamify.uaa.config.service.JwtService;
 import com.jamify.uaa.constants.Role;
+import com.jamify.uaa.service.UaaRefreshTokenService;
 import com.jamify.uaa.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -39,15 +40,15 @@ public class SecurityConfig {
     /**
      * Configures the security filter chain.
      *
-     * @param http the HttpSecurity object to configure
+     * @param http                    the HttpSecurity object to configure
      * @param customOAuth2UserService the custom OAuth2 user service
      * @param jwtAuthenticationFilter the JWT authentication filter
-     * @param userService the user service
+     * @param userService             the user service
      * @return the configured SecurityFilterChain
      * @throws Exception if an error occurs during configuration
      */
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService, JwtAuthenticationFilter jwtAuthenticationFilter, UserService userService, OAuth2AuthorizedClientService authorizedClientService) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, CustomOAuth2UserService customOAuth2UserService, JwtAuthenticationFilter jwtAuthenticationFilter, UserService userService, OAuth2AuthorizedClientService authorizedClientService, UaaRefreshTokenService uaaRefreshTokenService) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
@@ -59,6 +60,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/auth/**", "/login/**", "/oauth2/**", "/oauth/.well-known/jwks.json").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/api/v1/auth/refresh-jwt-token").permitAll()
                         .requestMatchers("/api/v1/user").hasAuthority(Role.USER.getValue())
                         .anyRequest().authenticated()
                 )
@@ -66,7 +68,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
-                        .successHandler(oAuth2AuthenticationSuccessHandler(userService, authorizedClientService))
+                        .successHandler(oAuth2AuthenticationSuccessHandler(userService, authorizedClientService, uaaRefreshTokenService))
                 )
                 .logout(logout -> logout
                         .logoutUrl("/auth/logout")
@@ -87,8 +89,8 @@ public class SecurityConfig {
      * @return the authentication success handler
      */
     @Bean
-    public AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler(UserService userService, OAuth2AuthorizedClientService authorizedClientService) {
-        return new CustomAuthenticationSuccessHandler(jwtService(), userService, authorizedClientService);
+    public AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler(UserService userService, OAuth2AuthorizedClientService authorizedClientService, UaaRefreshTokenService uaaRefreshTokenService) {
+        return new CustomAuthenticationSuccessHandler(jwtService(), userService, uaaRefreshTokenService, authorizedClientService);
     }
 
     /**

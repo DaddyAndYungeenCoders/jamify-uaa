@@ -1,8 +1,9 @@
 package com.jamify.uaa.config.service;
 
 import com.jamify.uaa.constants.AllowedProviders;
+import com.jamify.uaa.domain.model.UserAccessToken;
 import com.jamify.uaa.domain.model.UserEntity;
-import com.jamify.uaa.domain.model.UserToken;
+import com.jamify.uaa.service.UaaRefreshTokenService;
 import com.jamify.uaa.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,6 +33,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
     private final JwtService jwtService;
     private final UserService userService;
+    private final UaaRefreshTokenService refreshTokenService;
     private final OAuth2AuthorizedClientService authorizedClientService;
 
     /**
@@ -40,9 +42,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
      * @param jwtService  the service to handle JWT operations
      * @param userService the service to handle user operations
      */
-    public CustomAuthenticationSuccessHandler(JwtService jwtService, UserService userService, OAuth2AuthorizedClientService authorizedClientService) {
+    public CustomAuthenticationSuccessHandler(JwtService jwtService, UserService userService, UaaRefreshTokenService refreshTokenService, OAuth2AuthorizedClientService authorizedClientService) {
         this.jwtService = jwtService;
         this.userService = userService;
+        this.refreshTokenService = refreshTokenService;
         this.authorizedClientService = authorizedClientService;
     }
 
@@ -109,11 +112,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             // send access token to the jamify-engine microservice
             try {
                 ZonedDateTime expiresAt = ZonedDateTime.parse(Objects.requireNonNull(authorizedClient.getAccessToken().getExpiresAt()).toString());
-                UserToken userToken = new UserToken();
-                userToken.setProvider(provider);
-                userToken.setAccessToken(accessToken);
-                userToken.setEmail(oauthUser.getEmail());
-                userToken.setExpiresAt(expiresAt.toLocalDateTime());
+                buildUserAccessToken(provider, accessToken, oauthUser, expiresAt);
 
                 // TODO :uncomment when implemented, and what does jamify engine respond with?
                 // send the access token to the jamify-engine microservice so that it can be used to query the provider's API
@@ -132,12 +131,22 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             log.warn("No authorized client found for provider: {}", provider);
         }
 
-        // Get user and generate JWT token
+        // Get user and generate JWT token + generate refresh token
         UserEntity user = userService.getUserByEmail(oauthUser.getEmail());
         String token = jwtService.generateToken(user);
+        refreshTokenService.createRefreshToken(user.getId());
+
 
         // Redirect to the frontend with the generated jwt
         String redirectUrl = gatewayUrl + frontendService + "/?token=" + token;
         response.sendRedirect(redirectUrl);
+    }
+
+    private void buildUserAccessToken(String provider, String accessToken, CustomOAuth2User oauthUser, ZonedDateTime expiresAt) {
+        UserAccessToken userToken = new UserAccessToken();
+        userToken.setProvider(provider);
+        userToken.setAccessToken(accessToken);
+        userToken.setEmail(oauthUser.getEmail());
+        userToken.setExpiresAt(expiresAt.toLocalDateTime());
     }
 }

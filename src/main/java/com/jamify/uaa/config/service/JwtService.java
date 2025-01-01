@@ -1,6 +1,9 @@
 package com.jamify.uaa.config.service;
 
 import com.jamify.uaa.domain.model.UserEntity;
+import com.jamify.uaa.service.UaaRefreshTokenService;
+import com.jamify.uaa.service.UserService;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
@@ -42,6 +45,11 @@ public class JwtService {
     private ResourceLoader resourceLoader;
 
     private RSAPrivateKey key;
+
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private UaaRefreshTokenService uaaRefreshTokenService;
 
     /**
      * Initializes the signing key for JWT.
@@ -111,6 +119,30 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody()
                 .get("email", String.class);
+    }
+
+    /**
+     * Extracts the user id from the given JWT token.
+     *
+     * @param token the JWT token
+     * @return the user id extracted from the token
+     */
+    public Long getUserIdFromToken(String token) {
+        log.debug("Getting user id from token: {}", token);
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("id", Long.class);
+        } catch (ExpiredJwtException e) {
+            log.error("Token is expired for user : {}", e.getClaims().get("id", Long.class));
+            return e.getClaims().get("id", Long.class);
+        } catch (Exception e) {
+            log.error("Error getting user id from token: {}", e.getMessage());
+            return null;
+        }
     }
 
     /**
