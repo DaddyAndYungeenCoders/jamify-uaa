@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        logger.info("JwtAuthenticationFilter triggered for request URL");
+        logger.debug("JwtAuthenticationFilter triggered for request URL");
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);

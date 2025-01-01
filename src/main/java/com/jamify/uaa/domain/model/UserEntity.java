@@ -2,11 +2,13 @@ package com.jamify.uaa.domain.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
+@Table(name = "users")
 @Getter
 @Setter
 public class UserEntity extends AbstractEntity<Long> {

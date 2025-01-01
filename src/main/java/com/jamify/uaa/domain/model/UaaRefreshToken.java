@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 import java.time.Instant;
 
 @EqualsAndHashCode(callSuper = true)
-@Entity
+@Entity(name = "refresh_tokens")
 @Data
 public class UaaRefreshToken extends AbstractEntity<Long> {
     @Column(nullable = false, unique = true)

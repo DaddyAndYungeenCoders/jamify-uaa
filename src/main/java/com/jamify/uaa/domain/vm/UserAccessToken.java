@@ -1,4 +1,4 @@
-package com.jamify.uaa.domain.model;
+package com.jamify.uaa.domain.vm;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

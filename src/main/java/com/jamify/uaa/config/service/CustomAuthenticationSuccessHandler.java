@@ -1,7 +1,7 @@
 package com.jamify.uaa.config.service;
 
 import com.jamify.uaa.constants.AllowedProviders;
-import com.jamify.uaa.domain.model.UserAccessToken;
+import com.jamify.uaa.domain.vm.UserAccessToken;
 import com.jamify.uaa.domain.model.UserEntity;
 import com.jamify.uaa.service.UaaRefreshTokenService;
 import com.jamify.uaa.service.UserService;

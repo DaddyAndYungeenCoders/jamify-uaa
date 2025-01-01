@@ -46,11 +46,6 @@ public class JwtService {
 
     private RSAPrivateKey key;
 
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private UaaRefreshTokenService uaaRefreshTokenService;
-
     /**
      * Initializes the signing key for JWT.
      */
