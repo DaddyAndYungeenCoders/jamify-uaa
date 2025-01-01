@@ -2,6 +2,8 @@ package com.jamify.uaa.controller;
 
 import com.jamify.uaa.config.service.JwtService;
 import com.jamify.uaa.domain.model.UaaRefreshToken;
+import com.jamify.uaa.exceptions.auth.custom.InvalidApiKeyException;
+import com.jamify.uaa.exceptions.auth.custom.RefreshAccessTokenException;
 import com.jamify.uaa.service.TokenService;
 import com.jamify.uaa.service.UaaRefreshTokenService;
 import com.jamify.uaa.service.UserService;
@@ -48,12 +50,13 @@ public class AuthController {
             @RequestParam String email
     ) {
         if (!apiKey.equals(jamifyEngineApiKey)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Invalid API key"));
+            throw new InvalidApiKeyException("Invalid API key");
         }
 
         Map<String, String> tokenResponse = tokenService.refreshAccessToken(provider, email);
         if (tokenResponse.containsKey("error")) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(tokenResponse);
+            throw new RefreshAccessTokenException(tokenResponse.get("error"));
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(tokenResponse);
         }
         return ResponseEntity.ok(tokenResponse);
     }
