@@ -1,5 +1,6 @@
 package com.jamify.uaa.service.impl;
 
+import com.jamify.uaa.exceptions.auth.custom.RefreshAccessTokenException;
 import com.jamify.uaa.service.TokenService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
@@ -29,7 +30,7 @@ public class TokenServiceImpl implements TokenService {
         OAuth2AuthorizedClient client = authorizedClientService.loadAuthorizedClient(provider, email);
 
         if (client == null || client.getRefreshToken() == null) {
-            return Map.of("error", "Refresh token not found for the user");
+            throw new RefreshAccessTokenException("Refresh token not found for the user");
         }
 
         OAuth2AccessTokenResponse response = WebClient.builder()

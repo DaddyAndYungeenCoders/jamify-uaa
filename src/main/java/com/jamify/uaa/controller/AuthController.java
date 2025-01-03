@@ -54,10 +54,6 @@ public class AuthController {
         }
 
         Map<String, String> tokenResponse = tokenService.refreshAccessToken(provider, email);
-        if (tokenResponse.containsKey("error")) {
-            throw new RefreshAccessTokenException(tokenResponse.get("error"));
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(tokenResponse);
-        }
         return ResponseEntity.ok(tokenResponse);
     }
 
@@ -91,55 +87,3 @@ public class AuthController {
         }
     }
 }
-
-// côté jamify engine
-
-//@Service
-//public class TokenService {
-//
-//    private final UserTokenRepository userTokenRepository;
-//    private final RestTemplate restTemplate;
-//
-//    public TokenService(UserTokenRepository userTokenRepository, RestTemplate restTemplate) {
-//        this.userTokenRepository = userTokenRepository;
-//        this.restTemplate = restTemplate;
-//    }
-//
-//    public String getAccessToken(String email, String provider) {
-//        UserToken token = userTokenRepository.findByEmailAndProvider(email, provider)
-//                .orElseThrow(() -> new RuntimeException("Token not found"));
-//
-//        if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
-//            log.info("Access token expired. Refreshing...");
-//            String refreshedToken = refreshAccessToken(email, provider);
-//            token.setAccessToken(refreshedToken);
-//            token.setExpiresAt(LocalDateTime.now().plusHours(1));
-//            userTokenRepository.save(token);
-//        }
-//
-//        return token.getAccessToken();
-//    }
-//
-//    private String refreshAccessToken(String email, String provider) {
-//      @Value("${security.api-key.jamify-engine}")
-//      private String jamifyEngineApiKey;
-//
-//      HttpHeaders headers = new HttpHeaders();
-//      headers.set("X-API-KEY", "your-api-key");
-//
-//      HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
-//
-//      ResponseEntity<Map> response = restTemplate.exchange(
-//        "http://uaa-service/api/v1/auth/refresh-token?provider=" + provider + "&email=" + email,
-//        HttpMethod.POST,
-//        requestEntity,
-//        Map.class
-//);
-//
-//        if (response.getStatusCode().is2xxSuccessful()) {
-//            return (String) response.getBody().get("access_token");
-//        } else {
-//            throw new RuntimeException("Failed to refresh access token");
-//        }
-//    }
-//}
