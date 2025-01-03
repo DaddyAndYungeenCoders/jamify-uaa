@@ -35,6 +35,8 @@ public class UaaApplication {
                         Local: \t\t{}://localhost:{}{}
                         \t\
                         External: \t{}://{}:{}{}
+                        \t\
+                        API Docs: \t{}://localhost:{}/swagger-ui.html
                         ----------------------------------------------------------
                         """,
 				env.getProperty("spring.application.name"),
@@ -44,7 +46,9 @@ public class UaaApplication {
 				protocol,
 				host,
 				port,
-				contextPath
+				contextPath,
+				protocol,
+				port
 		);
 	}
 

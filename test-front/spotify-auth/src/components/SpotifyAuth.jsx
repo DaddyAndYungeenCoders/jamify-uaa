@@ -34,7 +34,7 @@ const SpotifyAuth = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:8081/user', {
+            const response = await fetch('http://localhost:8081/api/v1/user', {
                 headers: {
                     "Authorization": `Bearer ${authToken}`,
                     "Content-Type": "application/json",
