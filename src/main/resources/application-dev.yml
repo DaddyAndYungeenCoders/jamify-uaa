@@ -21,10 +21,14 @@ gateway:
     front: "" # no need to add /
 
 security:
-  api-key:
-    jamify-engine: super_secure_key
   jwt:
     # in resources folder
     private-key: classpath:private.pem
     public-key: classpath:public.pem
     jwk-key-id: jamify-uaa-key-id
+
+config:
+  jamify-engine:
+    url:
+     base: http://localhost:8082/api/v1
+    api-key: super-secret-dev-key

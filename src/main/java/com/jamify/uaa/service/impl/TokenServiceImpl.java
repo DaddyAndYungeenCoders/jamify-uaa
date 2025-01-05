@@ -47,7 +47,7 @@ public class TokenServiceImpl implements TokenService {
                 .block();
 
         if (response == null) {
-            return Map.of("error", "Failed to refresh the token");
+            return Map.of("error", "Failed to refresh the access token from " + provider);
         }
 
         OAuth2AuthorizedClient updatedClient = new OAuth2AuthorizedClient(

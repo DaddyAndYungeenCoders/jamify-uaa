@@ -3,7 +3,6 @@ package com.jamify.uaa.controller;
 import com.jamify.uaa.config.service.JwtService;
 import com.jamify.uaa.domain.model.UaaRefreshToken;
 import com.jamify.uaa.exceptions.auth.custom.InvalidApiKeyException;
-import com.jamify.uaa.exceptions.auth.custom.RefreshAccessTokenException;
 import com.jamify.uaa.service.TokenService;
 import com.jamify.uaa.service.UaaRefreshTokenService;
 import com.jamify.uaa.service.UserService;
@@ -20,7 +19,7 @@ import java.util.Map;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    @Value("${security.api-key.jamify-engine}")
+    @Value("${config.jamify-engine.api-key}")
     private String jamifyEngineApiKey;
 
     private final TokenService tokenService;
