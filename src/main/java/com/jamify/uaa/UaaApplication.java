@@ -33,12 +33,13 @@ public class UaaApplication {
         }
 
         log.info("""
+                        
                         ----------------------------------------------------------
                         Application '{}' is running!
                         
                         Local URLs:
                         - Local:\t\t{}://localhost:{}{}
-                        - Container:\t{}://{}:{}{}
+                        - Host:\t{}://{}:{}{}
                         - Swagger UI:\t{}://localhost:{}/swagger-ui.html
                         
                         Active profiles: {}
