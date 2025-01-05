@@ -6,10 +6,15 @@ import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import mockwebserver3.MockResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -23,6 +28,9 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @Slf4j
 @Component
@@ -119,6 +127,44 @@ public class TestsUtils {
         params.add("provider", TEST_PROVIDER);
         params.add("email", TEST_USER_EMAIL);
         return params;
+    }
+
+    public static MockResponse mockServerResponseNewAccessToken(String accessToken, String refreshToken, String scope) {
+        StringBuilder jsonResponseBuilder = new StringBuilder();
+        jsonResponseBuilder.append("{\n")
+                .append("  \"access_token\": \"").append(accessToken).append("\",\n")
+                .append("  \"token_type\": \"Bearer\",\n")
+                .append("  \"expires_in\": 3600,\n")
+                .append("  \"refresh_token\": \"").append(refreshToken).append("\",\n")
+                .append("  \"scope\": \"").append(scope).append("\"\n")
+                .append("}");
+
+        String jsonResponse = jsonResponseBuilder.toString();
+
+        return new MockResponse()
+                .newBuilder()
+                .body(jsonResponse)
+                .addHeader("Content-Type", "application/json")
+                .build();
+    }
+
+    public static ClientRegistration createMockClientRegistration(String tokenUri) {
+        ClientRegistration clientRegistration = mock(ClientRegistration.class);
+        ClientRegistration.ProviderDetails providerDetails = mock(ClientRegistration.ProviderDetails.class);
+
+        when(clientRegistration.getProviderDetails()).thenReturn(providerDetails);
+        when(clientRegistration.getClientId()).thenReturn("client-id");
+        when(clientRegistration.getClientSecret()).thenReturn("client-secret");
+        when(clientRegistration.getRegistrationId()).thenReturn("spotify");
+        when(providerDetails.getTokenUri()).thenReturn(tokenUri);
+
+        return clientRegistration;
+    }
+
+    public static OAuth2AuthorizedClient createMockAuthorizedClient(ClientRegistration clientRegistration) {
+        OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token", Instant.now(), Instant.now().plusSeconds(3600));
+        OAuth2RefreshToken refreshToken = new OAuth2RefreshToken("refresh-token", Instant.now());
+        return new OAuth2AuthorizedClient(clientRegistration, "test-user@example.com", accessToken, refreshToken);
     }
 
 
