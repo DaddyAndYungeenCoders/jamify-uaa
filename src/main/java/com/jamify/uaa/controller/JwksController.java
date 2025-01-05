@@ -17,7 +17,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-public class JwkController {
+public class JwksController {
 
     @Value("${security.jwt.jwk-key-id}")
     private String keyId;
