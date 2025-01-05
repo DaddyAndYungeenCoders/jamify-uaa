@@ -4,11 +4,13 @@ WORKDIR /build
 COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
+
+RUN chmod +x ./mvnw
 # Télécharger les dépendances (utilise le cache Docker si pom.xml n'a pas changé)
 RUN ./mvnw dependency:go-offline
 
 # Copier le code source et builder
-COPY src src
+COPY src ./src
 RUN ./mvnw package -DskipTests \
     && java -Djarmode=layertools -jar target/*.jar extract
 
