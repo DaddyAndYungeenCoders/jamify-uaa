@@ -12,8 +12,6 @@ gateway:
     front: "" # no need to add /
 
 security:
-  api-key:
-    jamify-engine: super_secure_key
   jwt:
     # in resources folder
     private-key: classpath:private.pem

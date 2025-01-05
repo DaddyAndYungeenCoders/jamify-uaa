@@ -30,8 +30,8 @@ public class TestsUtils {
 
     private static final String ISSUER_URI = "https://test-issuer.com";
     private static final String KEY_ID = "test-key-id";
-    private static final String USER_EMAIL = "test-user@example.com";
-    private static final String PROVIDER = "spotify";
+    private static final String TEST_USER_EMAIL = "test-user@example.com";
+    private static final String TEST_PROVIDER = "spotify";
 
     @Value("${security.jwt.private-key}")
     private String privateKeyPath;
@@ -99,7 +99,7 @@ public class TestsUtils {
         UserEntity user = new UserEntity();
         user.setId(1L);
         user.setName("Test User");
-        user.setEmail(USER_EMAIL);
+        user.setEmail(TEST_USER_EMAIL);
         user.setRole("ROLE_USER");
         user.setCountry("Testland");
         user.setProvider("test-provider");
@@ -116,8 +116,8 @@ public class TestsUtils {
 
     public static MultiValueMap<String, String> buildRefreshAccessTokenParams() {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("provider", PROVIDER);
-        params.add("email", USER_EMAIL);
+        params.add("provider", TEST_PROVIDER);
+        params.add("email", TEST_USER_EMAIL);
         return params;
     }
 
