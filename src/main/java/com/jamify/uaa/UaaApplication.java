@@ -8,48 +8,52 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.core.env.ConfigurableEnvironment;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 @SpringBootApplication
 @EnableConfigurationProperties({LiquibaseProperties.class})
-//@EnableOAuth2Client
 public class UaaApplication {
-	private static final Logger log = LoggerFactory.getLogger(UaaApplication.class);
+    private static final Logger log = LoggerFactory.getLogger(UaaApplication.class);
 
-	public static void main(String[] args) {
-		SpringApplication app = new SpringApplication(UaaApplication.class);
+    public static void main(String[] args) {
+        SpringApplication app = new SpringApplication(UaaApplication.class);
+        ConfigurableEnvironment env = app.run(args).getEnvironment();
 
-		ConfigurableEnvironment env = app.run(args).getEnvironment();
+        String protocol = "http";
+        String port = env.getProperty("server.port", "8080");
+        String contextPath = env.getProperty("server.servlet.context-path", "/");
 
-		String protocol = "http";
-		String host = "localhost";
-		String port = env.getProperty("server.port");
-		String contextPath = env.getProperty("server.servlet.context-path");
-		if (contextPath == null || contextPath.isBlank()) {
-			contextPath = "/";
-		}
-		log.info("""
+        // Get container IP address if available
+        String hostAddress;
+        try {
+            hostAddress = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            hostAddress = "localhost";
+        }
 
+        log.info("""
                         ----------------------------------------------------------
-                        \t\
-                        Application '{}' is running ! Access URLs:\s
-                        \t\
-                        Local: \t\t{}://localhost:{}{}
-                        \t\
-                        External: \t{}://{}:{}{}
-                        \t\
-                        API Docs: \t{}://localhost:{}/swagger-ui.html
-                        ----------------------------------------------------------
-                        """,
-				env.getProperty("spring.application.name"),
-				protocol,
-				port,
-				contextPath,
-				protocol,
-				host,
-				port,
-				contextPath,
-				protocol,
-				port
-		);
-	}
-
+                        Application '{}' is running!
+                        
+                        Local URLs:
+                        - Local:\t\t{}://localhost:{}{}
+                        - Container:\t{}://{}:{}{}
+                        - Swagger UI:\t{}://localhost:{}/swagger-ui.html
+                        
+                        Active profiles: {}
+                        ----------------------------------------------------------""",
+                env.getProperty("spring.application.name"),
+                protocol,
+                port,
+                contextPath,
+                protocol,
+                hostAddress,
+                port,
+                contextPath,
+                protocol,
+                port,
+                String.join(", ", env.getActiveProfiles())
+        );
+    }
 }
