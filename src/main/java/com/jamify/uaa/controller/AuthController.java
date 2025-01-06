@@ -72,8 +72,13 @@ public class AuthController {
 
         // Extract the token from the Authorization header
         String expiredToken = token.substring(7);
-        // Extract the user ID from the token
-        String email = jwtService.getUserEmailFromToken(expiredToken);
+
+        // Extract the user email from the token
+        String email = jwtService.getUserEmailFromExpiredToken(expiredToken);
+        if (email == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         // Get the refresh token from the engine user db
         UaaRefreshToken refreshToken = refreshTokenService.getTokenByUserEmail(email);
 

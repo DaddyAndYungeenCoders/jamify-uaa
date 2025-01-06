@@ -114,6 +114,25 @@ public class JwtService {
                 .get("email", String.class);
     }
 
+    public String getUserEmailFromExpiredToken(String token) {
+        try {
+            log.debug("Getting username (user mail) from possibly expired token: {}", token);
+
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("email", String.class);
+        } catch (ExpiredJwtException e) {
+            log.warn("Token has expired: {}", token);
+            return e.getClaims().get("email", String.class);
+        } catch (Exception e) {
+            log.error("Error while parsing token: {}", token, e);
+        }
+        return null;
+    }
+
     /**
      * Extracts the user id from the given JWT token.
      *
