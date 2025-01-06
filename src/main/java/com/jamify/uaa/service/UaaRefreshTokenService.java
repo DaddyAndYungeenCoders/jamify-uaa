@@ -31,4 +31,11 @@ public interface UaaRefreshTokenService {
      * @return the UaaRefreshToken associated with the user
      */
     UaaRefreshToken getTokenByUser(UserEntity userEntity);
+
+    /**
+     * Deletes the refresh token associated with the specified user.
+     *
+     * @param userId the ID of the user for whom the refresh token is to be deleted
+     */
+    void deleteUserRefreshToken(Long userId);
 }

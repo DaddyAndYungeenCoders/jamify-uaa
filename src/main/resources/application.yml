@@ -61,8 +61,6 @@ gateway:
       front: /mobile-app
 
 security:
-  api-key:
-    jamify-engine: ${JAMIFY_ENGINE_API_KEY}
   jwt:
     private-key: ${JWT_PRIVATE_KEY}
     public-key: ${JWT_PUBLIC_KEY}
@@ -73,3 +71,8 @@ security:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+config:
+  jamify-engine:
+    url: ${JAMIFY_ENGINE_BASE_URL}
+    api-key: ${JAMIFY_ENGINE_API_KEY}

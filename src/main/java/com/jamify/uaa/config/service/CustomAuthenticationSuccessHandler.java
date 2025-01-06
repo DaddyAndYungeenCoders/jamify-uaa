@@ -8,12 +8,15 @@ import com.jamify.uaa.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
@@ -23,6 +26,7 @@ import java.util.Objects;
  * Custom authentication success handler to process OAuth2 login success events.
  */
 @Slf4j
+@Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     @Value("${gateway.url}")
@@ -30,6 +34,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
     @Value("${gateway.service.front}")
     private String frontendService;
+
+    @Autowired
+    private WebClient jamifyEngineWebClient;
 
     private final JwtService jwtService;
     private final UserService userService;
@@ -112,18 +119,16 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             // send access token to the jamify-engine microservice
             try {
                 ZonedDateTime expiresAt = ZonedDateTime.parse(Objects.requireNonNull(authorizedClient.getAccessToken().getExpiresAt()).toString());
-                buildUserAccessToken(provider, accessToken, oauthUser, expiresAt);
+                UserAccessToken userAccessToken = buildUserAccessToken(provider, accessToken, oauthUser, expiresAt);
 
-                // TODO :uncomment when implemented, and what does jamify engine respond with?
                 // send the access token to the jamify-engine microservice so that it can be used to query the provider's API
-//                Object res = WebClient.builder()
-//                        .build()
-//                        .post()
-//                        .uri("http://jamify-engine/api/v1/auth/token")
-//                        .bodyValue(userToken)
-//                        .retrieve()
-//                        .bodyToMono(String.class)
-//                        .block();
+                jamifyEngineWebClient
+                        .post()
+                        .uri("/auth/access-token")
+                        .bodyValue(userAccessToken)
+                        .retrieve()
+                        .bodyToMono(void.class)
+                        .block();
             } catch (Exception e) {
                 log.error("Error while sending access token to Jamify Engine :", e);
             }
@@ -142,11 +147,12 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         response.sendRedirect(redirectUrl);
     }
 
-    private void buildUserAccessToken(String provider, String accessToken, CustomOAuth2User oauthUser, ZonedDateTime expiresAt) {
+    private UserAccessToken buildUserAccessToken(String provider, String accessToken, CustomOAuth2User oauthUser, ZonedDateTime expiresAt) {
         UserAccessToken userToken = new UserAccessToken();
         userToken.setProvider(provider);
         userToken.setAccessToken(accessToken);
         userToken.setEmail(oauthUser.getEmail());
         userToken.setExpiresAt(expiresAt.toLocalDateTime());
+        return userToken;
     }
 }
