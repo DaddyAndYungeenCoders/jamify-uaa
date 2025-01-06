@@ -39,7 +39,7 @@ public class UaaApplication {
                         
                         Local URLs:
                         - Local:\t\t{}://localhost:{}{}
-                        - Host:\t{}://{}:{}{}
+                        - Host:\t\t\t{}://{}:{}{}
                         - Swagger UI:\t{}://localhost:{}/swagger-ui.html
                         
                         Active profiles: {}

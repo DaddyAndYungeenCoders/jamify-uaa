@@ -59,7 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             try {
                 if (jwtService.validateToken(token)) {
-                    String username = jwtService.getUsernameFromToken(token);
+                    String username = jwtService.getUserEmailFromToken(token);
                     List<String> roles = jwtService.getRolesFromToken(token);
 
                     UsernamePasswordAuthenticationToken authentication =

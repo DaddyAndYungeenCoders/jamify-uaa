@@ -1,7 +1,6 @@
 package com.jamify.uaa.service;
 
 import com.jamify.uaa.domain.model.UaaRefreshToken;
-import com.jamify.uaa.domain.model.UserEntity;
 
 /**
  * Service interface for managing UAA refresh tokens.
@@ -9,12 +8,12 @@ import com.jamify.uaa.domain.model.UserEntity;
 public interface UaaRefreshTokenService {
 
     /**
-     * Creates a new refresh token for the specified user ID.
+     * Creates a new refresh token for the specified user email.
      *
-     * @param userId the ID of the user for whom the refresh token is to be created
+     * @param email the email of the user for whom the refresh token is to be created
      * @return the created UaaRefreshToken
      */
-    UaaRefreshToken createRefreshToken(Long userId);
+    UaaRefreshToken createRefreshToken(String email);
 
     /**
      * Checks if the given refresh token is expired.
@@ -25,17 +24,17 @@ public interface UaaRefreshTokenService {
     boolean isRefreshTokenExpired(UaaRefreshToken refreshToken);
 
     /**
-     * Retrieves the refresh token associated with the specified user.
+     * Retrieves the refresh token associated with the specified user email.
      *
-     * @param userEntity the user entity for whom the refresh token is to be retrieved
+     * @param email the email of the user for whom the refresh token is to be retrieved
      * @return the UaaRefreshToken associated with the user
      */
-    UaaRefreshToken getTokenByUser(UserEntity userEntity);
+    UaaRefreshToken getTokenByUserEmail(String email);
 
     /**
-     * Deletes the refresh token associated with the specified user.
+     * Deletes the refresh token associated with the specified user email.
      *
-     * @param userId the ID of the user for whom the refresh token is to be deleted
+     * @param email the email of the user for whom the refresh token is to be deleted
      */
-    void deleteUserRefreshToken(Long userId);
+    void deleteUserRefreshToken(String email);
 }

@@ -1,5 +1,5 @@
 services:
-  postgres:
+  postgres-uaa:
     image: postgres:16
     environment:
       POSTGRES_DB: jamify-uaa
@@ -11,4 +11,4 @@ services:
       timeout: 2s
       retries: 15
     ports:
-      - "5432:5432"
+      - "5433:5432"

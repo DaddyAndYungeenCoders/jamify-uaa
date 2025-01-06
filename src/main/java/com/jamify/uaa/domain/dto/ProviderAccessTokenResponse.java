@@ -15,5 +15,4 @@ public class ProviderAccessTokenResponse {
     @JsonProperty("refresh_token")
     private String refreshToken;
     private String scope;
-
 }
