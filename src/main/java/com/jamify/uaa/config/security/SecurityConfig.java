@@ -59,7 +59,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/", "/auth/**", "/login/**", "/oauth2/**", "/oauth/.well-known/jwks.json").permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**", "/v3/api-docs").permitAll()
                         .requestMatchers("/api/v1/auth/refresh-jwt-token").permitAll()
                         .requestMatchers("/api/v1/user").hasAuthority(Role.USER.getValue())
                         .anyRequest().authenticated()

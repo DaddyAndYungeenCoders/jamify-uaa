@@ -19,13 +19,13 @@ spring:
             client-secret: ${AMAZON_CLIENT_SECRET}
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/amazon"
-            scope: profile
-          apple:
-            client-id: ${APPLE_MUSIC_CLIENT_ID}
-            client-secret: ${APPLE_MUSIC_CLIENT_SECRET}
-            authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/login/oauth2/code/apple"
-            scope: user-read #TODO
+            scope: profile # TODO
+#          apple:
+#            client-id: ${APPLE_CLIENT_ID}
+#            client-secret: ${APPLE_CLIENT_SECRET}
+#            authorization-grant-type: authorization_code
+#            redirect-uri: "{baseUrl}/login/oauth2/code/apple"
+#            scope: user-read #TODO
         provider:
           spotify:
             authorization-uri: https://accounts.spotify.com/authorize
@@ -37,11 +37,11 @@ spring:
             token-uri: https://api.amazon.com/auth/o2/token
             user-info-uri: https://api.amazon.com/user/profile
             user-name-attribute: user_id
-          apple:
-            authorization-uri: https://appleid.apple.com/auth/authorize
-            token-uri: https://appleid.apple.com/auth/token
-            user-info-uri: https://api.music.apple.com/v1/me
-            user-name-attribute: sub
+#          apple:
+#            authorization-uri: https://appleid.apple.com/auth/oauth2/v2/authorize
+#            token-uri: https://appleid.apple.com/auth/oauth2/v2/token
+#            user-info-uri: https://api.music.apple.com/v1/me
+#            user-name-attribute: sub
 
 
       resourceserver:
@@ -95,6 +95,8 @@ security:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+  api-docs:
+    enabled: true
 
 config:
   jamify-engine:
