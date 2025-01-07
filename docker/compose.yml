@@ -12,3 +12,38 @@ services:
       retries: 15
     ports:
       - "5433:5432"
+
+  jamify-uaa:
+    container_name: jamify-uaa
+    build:
+      context: ../
+      dockerfile: Dockerfile
+      args:
+        SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID}
+        SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET}
+        AMAZON_CLIENT_ID: ${AMAZON_CLIENT_ID}
+        AMAZON_CLIENT_SECRET: ${AMAZON_CLIENT_SECRET}
+    ports:
+      - "8081:8081"
+    environment:
+      SPOTIFY_CLIENT_ID: ${SPOTIFY_CLIENT_ID}
+      SPOTIFY_CLIENT_SECRET: ${SPOTIFY_CLIENT_SECRET}
+      AMAZON_CLIENT_ID: ${AMAZON_CLIENT_ID}
+      AMAZON_CLIENT_SECRET: ${AMAZON_CLIENT_SECRET}
+      POSTGRES_HOST: postgres-uaa
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: jamify-uaa
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      JWT_PRIVATE_KEY: classpath:private.pem
+      JWK_KEY_ID: jamify-uaa-key-id
+      JAMIFY_ENGINE_BASE_URL: http://jamify-engine:8082/api/v1
+      JAMIFY_ENGINE_API_KEY: 894daze-daz41eazLwXrrt-55rryrtnbv2-apmqFzf
+      GATEWAY_HOST: http://localhost:5173
+    depends_on:
+      - postgres-uaa
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 15s
+      timeout: 2s
+      retries: 15
