@@ -85,20 +85,14 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             // Handling different providers, if there are different actions to be taken
             switch (allowedProvider) {
                 case SPOTIFY:
-//                    userService.createUserIfNotExists(
-//                            oauthUser.getEmail(),
-//                            oauthUser.getName(),
-//                            oauthUser.getCountry(),
-//                            oauthUser.getId(),
-//                            oauthUser.getImgUrl(),
-//                            provider
-//                    );
                     userService.sendLoggedUserToEngineForCreation(oauthUser, provider);
                     break;
-                case DEEZER:
-                    // Add Deezer specific logic here
+                case AMAZON:
+                    // Add Amazon Music specific logic here
+                    // user_id, email, name, postal_code return by user_info
+                    userService.sendLoggedUserToEngineForCreation(oauthUser, provider);
                     break;
-                case APPLE_MUSIC:
+                case APPLE:
                     // Add Apple Music specific logic here
                     break;
                 default:
@@ -141,7 +135,6 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         UserDto user = userService.getUserByEmail(oauthUser.getEmail());
         String token = jwtService.generateToken(user);
         refreshTokenService.createRefreshToken(user.email());
-
 
         // Redirect to the frontend with the generated jwt
         String redirectUrl = gatewayUrl + frontendService + "/?token=" + token;

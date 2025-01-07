@@ -28,6 +28,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -112,7 +113,7 @@ public class TestsUtils {
                 "FR",
                 "test-provider",
                 "11111111",
-                List.of("ROLE_USER")
+                Set.of("ROLE_USER")
         );
     }
 
@@ -124,7 +125,7 @@ public class TestsUtils {
                 "FR",
                 "test-provider",
                 "11111111",
-                List.of("ROLE_USER")
+                Set.of("ROLE_USER")
         );
     }
 
