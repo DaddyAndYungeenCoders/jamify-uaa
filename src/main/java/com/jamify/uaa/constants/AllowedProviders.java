@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum AllowedProviders {
-    SPOTIFY("spotify"), DEEZER("deezer"), APPLE_MUSIC("apple_music");
+    SPOTIFY("spotify"), AMAZON("amazon"), APPLE("apple");
 
     private final String value;
 

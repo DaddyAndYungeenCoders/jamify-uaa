@@ -48,7 +48,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        if (request.getRequestURI().contains("/api/v1/auth/refresh-jwt-token")) {
+        if (request.getRequestURI().contains("/api/v1/auth/refresh-jwt-token") ||
+                request.getRequestURI().contains("/swagger-ui/index.html") ||
+                request.getRequestURI().contains("/v3/api-docs"))
+        {
             filterChain.doFilter(request, response);
             return;
         }
@@ -66,7 +69,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(username, null,
                                     roles.stream().map(SimpleGrantedAuthority::new).toList());
-
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             } catch (Exception ex) {

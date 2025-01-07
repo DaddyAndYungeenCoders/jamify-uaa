@@ -1,10 +1,12 @@
 package com.jamify.uaa.domain.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 
-import java.util.List;
+import java.util.Set;
 
 @Schema(description = "User details")
+@Builder
 public record UserDto(
         @Schema(description = "User ID", example = "123456")
         String name,
@@ -19,6 +21,6 @@ public record UserDto(
         @Schema(description = "User provider ID", example = "123456")
         String userProviderId,
         @Schema(description = "User roles", example = "[ROLE_USER, ROLE_ADMIN]")
-        List<String> roles
+        Set<String> roles
 ) {
 }

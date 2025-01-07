@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Collections;
+import java.util.Set;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -41,7 +42,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void sendLoggedUserToEngineForCreation(CustomOAuth2User oauthUser, String provider) {
-        //TODO: check provider id beacause its null
+        Set<String> roles = Collections.singleton(Role.USER.getValue());
+
         UserDto userDto = new UserDto(
                 oauthUser.getName(),
                 oauthUser.getEmail(),
@@ -49,7 +51,8 @@ public class UserServiceImpl implements UserService {
                 oauthUser.getCountry(),
                 provider,
                 oauthUser.getId(), // id from provider
-                Collections.singletonList(Role.USER.getValue()) // TODO: change if role are implemented
+                roles
+
         );
         // create user with jamify-engine
         jamifyEngineWebClient.post()

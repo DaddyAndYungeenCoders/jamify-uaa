@@ -162,15 +162,17 @@ public class JwtService {
      */
     public Set<String> getRolesFromToken(String token) {
         log.debug("Getting roles from token: {}", token);
-        Set<?> roles = Jwts.parserBuilder()
+        List<?> roles = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
-                .get("roles", Set.class);
+                .get("roles", List.class);
 
         if (roles != null) {
-            return roles.stream().toList().stream().map(role -> (String) role).collect(Collectors.toSet());
+            return roles.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.toSet());
         }
         return Collections.emptySet();
     }

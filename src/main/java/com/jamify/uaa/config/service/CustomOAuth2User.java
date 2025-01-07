@@ -30,7 +30,14 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public String getName() {
-        return oauth2User.getAttribute("display_name");
+        // handle different providers
+        if (oauth2User.getAttribute("display_name") != null) {
+            return oauth2User.getAttribute("display_name");
+        } else if (oauth2User.getAttribute("name") != null) {
+            return oauth2User.getAttribute("name");
+        } else {
+            return oauth2User.getAttribute("email");
+        }
     }
 
     public String getEmail() {
@@ -42,7 +49,13 @@ public class CustomOAuth2User implements OAuth2User {
     }
 
     public String getId() {
-        return oauth2User.getAttribute("id");
+        if (oauth2User.getAttribute("id") != null) {
+            return oauth2User.getAttribute("id");
+        } else if (oauth2User.getAttribute("user_id") != null) {
+            return oauth2User.getAttribute("user_id");
+        } else {
+            return oauth2User.getAttribute("sub");
+        }
     }
 
     public String getImgUrl() {
