@@ -12,14 +12,13 @@ public record UserDto(
         String email,
         @Schema(description = "User image URL", example = "https://example.com/user.jpg")
         String imgUrl,
-        @Schema(description = "User role", example = "ROLE_USER")
-        String role,
-        @Schema(description = "User playlists", example = "[\"playlist1\", \"playlist2\"]")
-        List<String> playlists,
-        @Schema(description = "User events", example = "[\"event1\", \"event2\"]")
-        List<String> events,
-        @Schema(description = "User jams", example = "[\"jam1\", \"jam2\"]")
-        List<String> jams,
-        @Schema(description = "User badges", example = "[\"badge1\", \"badge2\"]")
-        List<String> badges
-) {}
+        @Schema(description = "User country", example = "US")
+        String country,
+        @Schema(description = "User provider", example = "google")
+        String provider,
+        @Schema(description = "User provider ID", example = "123456")
+        String userProviderId,
+        @Schema(description = "User roles", example = "[ROLE_USER, ROLE_ADMIN]")
+        List<String> roles
+) {
+}

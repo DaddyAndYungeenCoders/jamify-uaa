@@ -1,7 +1,6 @@
 package com.jamify.uaa.controller;
 
 import com.jamify.uaa.domain.dto.UserDto;
-import com.jamify.uaa.domain.mapper.UserMapper;
 import com.jamify.uaa.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
-    private final UserMapper userMapper;
 
     private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
-    public UserController(UserService userService, UserMapper userMapper) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userMapper = userMapper;
     }
 
     @GetMapping
@@ -31,7 +28,7 @@ public class UserController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String principal = authentication.getPrincipal().toString();
         log.info("Logged in user: {}", principal);
-        return ResponseEntity.ok(userMapper.toDto(userService.getUserByEmail(principal)));
+        return ResponseEntity.ok(userService.getUserByEmail(principal));
     }
 
     //TODO: Endpoints

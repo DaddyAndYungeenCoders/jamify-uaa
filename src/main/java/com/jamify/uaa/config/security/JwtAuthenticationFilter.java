@@ -15,6 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Filter that processes JWT authentication for each request.
@@ -59,8 +60,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             try {
                 if (jwtService.validateToken(token)) {
-                    String username = jwtService.getUsernameFromToken(token);
-                    List<String> roles = jwtService.getRolesFromToken(token);
+                    String username = jwtService.getUserEmailFromToken(token);
+                    Set<String> roles = jwtService.getRolesFromToken(token);
 
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(username, null,

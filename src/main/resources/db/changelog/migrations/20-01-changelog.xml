@@ -6,25 +6,22 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.29.xsd"
         objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
     <changeSet id="1734733147878-1" author="damie">
-        <createTable tableName="users">
+        <createTable tableName="refresh_tokens">
             <column name="id" autoIncrement="true" type="BIGINT">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="pk_userentity"/>
             </column>
-            <column name="created_date" type="timestamp">
+            <column name="token" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
-            <column name="last_modified_date" type="timestamp"/>
-            <column name="name" type="VARCHAR(255)">
+            <column name="created_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column name="email" type="VARCHAR(255)">
+            <column name="expiry_date" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column name="role" type="VARCHAR(255)"/>
-            <column name="country" type="VARCHAR(255)"/>
-            <column name="provider" type="VARCHAR(255)"/>
-            <column name="provider_id" type="VARCHAR(255)"/>
-            <column name="img_url" type="VARCHAR(255)"/>
+            <column name="user_email" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
     </changeSet>
 

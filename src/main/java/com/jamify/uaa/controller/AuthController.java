@@ -72,14 +72,19 @@ public class AuthController {
 
         // Extract the token from the Authorization header
         String expiredToken = token.substring(7);
-        // Extract the user ID from the token
-        Long userId = jwtService.getUserIdFromToken(expiredToken);
-        // Get the refresh token from the database
-        UaaRefreshToken refreshToken = refreshTokenService.getTokenByUser(userService.getUserById(userId));
+
+        // Extract the user email from the token
+        String email = jwtService.getUserEmailFromExpiredToken(expiredToken);
+        if (email == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        // Get the refresh token from the engine user db
+        UaaRefreshToken refreshToken = refreshTokenService.getTokenByUserEmail(email);
 
         // Check if the refresh token is valid, if so, generate a new JWT token
         if (refreshToken != null && !refreshTokenService.isRefreshTokenExpired(refreshToken)) {
-            String newToken = jwtService.generateToken(userService.getUserById(userId));
+            String newToken = jwtService.generateToken(userService.getUserByEmail(email));
             return ResponseEntity.ok(Map.of("token", newToken));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

@@ -1,8 +1,8 @@
 package com.jamify.uaa.config.service;
 
 import com.jamify.uaa.constants.AllowedProviders;
+import com.jamify.uaa.domain.dto.UserDto;
 import com.jamify.uaa.domain.vm.UserAccessToken;
-import com.jamify.uaa.domain.model.UserEntity;
 import com.jamify.uaa.service.UaaRefreshTokenService;
 import com.jamify.uaa.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -85,14 +85,15 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
             // Handling different providers, if there are different actions to be taken
             switch (allowedProvider) {
                 case SPOTIFY:
-                    userService.createUserIfNotExists(
-                            oauthUser.getEmail(),
-                            oauthUser.getName(),
-                            oauthUser.getCountry(),
-                            oauthUser.getId(),
-                            oauthUser.getImgUrl(),
-                            provider
-                    );
+//                    userService.createUserIfNotExists(
+//                            oauthUser.getEmail(),
+//                            oauthUser.getName(),
+//                            oauthUser.getCountry(),
+//                            oauthUser.getId(),
+//                            oauthUser.getImgUrl(),
+//                            provider
+//                    );
+                    userService.sendLoggedUserToEngineForCreation(oauthUser, provider);
                     break;
                 case DEEZER:
                     // Add Deezer specific logic here
@@ -137,9 +138,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         }
 
         // Get user and generate JWT token + generate refresh token
-        UserEntity user = userService.getUserByEmail(oauthUser.getEmail());
+        UserDto user = userService.getUserByEmail(oauthUser.getEmail());
         String token = jwtService.generateToken(user);
-        refreshTokenService.createRefreshToken(user.getId());
+        refreshTokenService.createRefreshToken(user.email());
 
 
         // Redirect to the frontend with the generated jwt

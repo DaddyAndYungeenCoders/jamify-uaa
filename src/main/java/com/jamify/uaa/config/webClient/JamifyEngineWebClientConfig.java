@@ -11,7 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  * Configuration class for UAA WebClient.
  */
 @Configuration
-public class JamifyEngineWebClient {
+public class JamifyEngineWebClientConfig {
 
     /**
      * API key for Jamify Engine.
@@ -31,7 +31,7 @@ public class JamifyEngineWebClient {
      * @return a configured WebClient instance
      */
     @Bean
-    public WebClient uaaWebClient() {
+    public WebClient jamifyEngineWebClient() {
         return WebClient.builder()
                 .baseUrl(jamifyEngineUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)

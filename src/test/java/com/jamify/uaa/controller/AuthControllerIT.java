@@ -1,15 +1,12 @@
 package com.jamify.uaa.controller;
 
-import com.jamify.uaa.domain.model.UserEntity;
-import com.jamify.uaa.service.TokenService;
-import com.jamify.uaa.service.UserService;
+import com.jamify.uaa.domain.dto.UserDto;
 import com.jamify.uaa.utils.TestsUtils;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import mockwebserver3.RecordedRequest;
-import okhttp3.Headers;
 import org.junit.jupiter.api.*;
-import org.mockito.MockitoAnnotations;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,17 +18,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -47,46 +39,53 @@ class AuthControllerIT {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private TokenService tokenService;
-
-    @Autowired
-    private UserService userService;
-
     @MockitoBean
     private OAuth2AuthorizedClientService authorizedClientService;
 
     private static MockWebServer mockBackEnd;
-    private WebClient webClient;
+
+    @MockitoBean
+    private WebClient jamifyEngineWebClient;
+
+    @Mock
+    private WebClient.RequestHeadersUriSpec requestHeadersUriSpec;
+
+    @Mock
+    private WebClient.RequestHeadersSpec requestHeadersSpec;
+
+    @Mock
+    private WebClient.ResponseSpec responseSpec;
 
     @Value("${config.jamify-engine.api-key}")
     private String correctJamifyEngineApiKey;
 
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-
-        //TODO: do this just before tests that need to call external services
-        String baseUrl = String.format("http://localhost:%s", mockBackEnd.getPort());
-        webClient = WebClient.create(baseUrl);
-    }
-
     @BeforeAll
-    static void setUpWebServer() throws IOException {
+    static void setUpMockWebServer() throws IOException {
         mockBackEnd = new MockWebServer();
         mockBackEnd.start();
     }
 
     @AfterAll
-    static void tearDown() throws IOException {
-        mockBackEnd.shutdown();
+    static void tearDownMockWebServer() throws IOException {
+        if (mockBackEnd != null) {
+            mockBackEnd.shutdown();
+        }
+    }
+
+    @BeforeEach
+    void setUp() {
+        when(jamifyEngineWebClient.get()).thenReturn(requestHeadersUriSpec);
     }
 
     @Test
     void refreshJwtToken_withExpiredJwtAndValidRefreshToken_shouldReturnNewValidJwtToken() throws Exception {
-        Long userId = 1L;
-        String expiredJwt = TestsUtils.buildExpiredJwt(userService.getUserById(userId));
+        UserDto userDto = TestsUtils.buildUserDto();
+        String expiredJwt = TestsUtils.buildExpiredJwt(userDto);
+
+        // Configuration du mock WebClient
+        when(requestHeadersUriSpec.uri("/users/uaa/email/{email}", userDto.email())).thenReturn(requestHeadersSpec);
+        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.bodyToMono(UserDto.class)).thenReturn(Mono.just(userDto));
 
         mockMvc.perform(post("/api/v1/auth/refresh-jwt-token")
                         .header("Authorization", "Bearer " + expiredJwt))
@@ -96,9 +95,13 @@ class AuthControllerIT {
 
     @Test
     void refreshJwtToken_withExpiredRefreshToken_shouldReturnHttp401Response() throws Exception {
-        Long userId = 2L; // user with id 2 has an expired refresh token
-        UserEntity user = userService.getUserById(userId);
-        String expiredJwt = TestsUtils.buildExpiredJwt(user);
+        UserDto userDto = TestsUtils.buildUserDtoWithExpiredRefreshToken();
+        String expiredJwt = TestsUtils.buildExpiredJwt(userDto);
+
+        // Configuration du mock WebClient
+        when(requestHeadersUriSpec.uri("/users/uaa/email/{email}", userDto.email())).thenReturn(requestHeadersSpec);
+        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+        when(responseSpec.bodyToMono(UserDto.class)).thenReturn(Mono.just(userDto));
 
         mockMvc.perform(post("/api/v1/auth/refresh-jwt-token")
                         .header("Authorization", "Bearer " + expiredJwt))
@@ -108,7 +111,7 @@ class AuthControllerIT {
     @Test
     void refreshAccessToken_withInvalidApiKey_shouldReturnHttp403Response() throws Exception {
         MultiValueMap<String, String> params = TestsUtils.buildRefreshAccessTokenParams();
-        String validJwt = TestsUtils.buildValidJwt(userService.getUserById(1L));
+        String validJwt = TestsUtils.buildValidJwt(TestsUtils.buildUserDto());
 
         mockMvc.perform(post("/api/v1/auth/refresh-access-token")
                         .header("X-API-KEY", "invalid-api-key")
@@ -119,17 +122,15 @@ class AuthControllerIT {
 
     @Test
     void refreshAccessToken_withValidApiKey_shouldReturnNewAccessToken() throws Exception {
-        Long userId = 1L;
-
         MultiValueMap<String, String> params = TestsUtils.buildRefreshAccessTokenParams();
-        UserEntity user = userService.getUserById(userId);
-        String validJwt = TestsUtils.buildValidJwt(user);
+        UserDto userDto = TestsUtils.buildUserDto();
+        String validJwt = TestsUtils.buildValidJwt(userDto);
 
         String newAccessToken = "new-access-token";
         String newRefreshToken = "new-refresh-token";
         String scope = "user-read-email user-read-private";
 
-        // Mocking the response from the mock server
+//         Mocking the response from the mock server
         MockResponse mockResponse = TestsUtils.mockServerResponseNewAccessToken(newAccessToken, newRefreshToken, scope);
         mockBackEnd.enqueue(mockResponse);
 

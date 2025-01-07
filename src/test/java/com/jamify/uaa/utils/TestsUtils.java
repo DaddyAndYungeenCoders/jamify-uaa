@@ -1,7 +1,7 @@
 package com.jamify.uaa.utils;
 
+import com.jamify.uaa.domain.dto.UserDto;
 import com.jamify.uaa.domain.model.UaaRefreshToken;
-import com.jamify.uaa.domain.model.UserEntity;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import jakarta.annotation.PostConstruct;
@@ -39,6 +39,7 @@ public class TestsUtils {
     private static final String ISSUER_URI = "https://test-issuer.com";
     private static final String KEY_ID = "test-key-id";
     private static final String TEST_USER_EMAIL = "test-user@example.com";
+    private static final String TEST_EXPIRED_USER_EMAIL = "test-expired-user@example.com";
     private static final String TEST_PROVIDER = "spotify";
 
     @Value("${security.jwt.private-key}")
@@ -64,17 +65,17 @@ public class TestsUtils {
      *
      * @return Un JWT valide.
      */
-    public static String buildValidJwt(UserEntity user) {
+    public static String buildValidJwt(UserDto user) {
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setHeaderParam("kid", KEY_ID)
-                .setSubject(user.getEmail())
+                .setSubject(user.email())
                 .setIssuer(ISSUER_URI)
-                .claim("email", user.getEmail())
-                .claim("roles", List.of(user.getRole()))
-                .claim("country", user.getCountry())
-                .claim("provider", user.getProvider())
-                .claim("id", user.getId())
+                .claim("email", user.email())
+                .claim("roles", user.roles())
+                .claim("country", user.country())
+                .claim("provider", user.provider())
+                .claim("id", user.userProviderId())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 3600000)) // Expirera dans 1 heure
                 .signWith(key)
@@ -86,38 +87,51 @@ public class TestsUtils {
      *
      * @return Un JWT expiré.
      */
-    public static String buildExpiredJwt(UserEntity user) {
+    public static String buildExpiredJwt(UserDto user) {
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setHeaderParam("kid", KEY_ID)
-                .setSubject(user.getEmail())
+                .setSubject(user.email())
                 .setIssuer(ISSUER_URI)
-                .claim("email", user.getEmail())
-                .claim("roles", List.of(user.getRole()))
-                .claim("country", user.getCountry())
-                .claim("provider", user.getProvider())
-                .claim("id", user.getId())
+                .claim("email", user.email())
+                .claim("roles", List.of(user.roles()))
+                .claim("country", user.country())
+                .claim("provider", user.provider())
+                .claim("id", user.userProviderId())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() - 3600000)) // Expiré depuis 1 heure
                 .signWith(key)
                 .compact();
     }
 
-    public static UserEntity buildUserEntity() {
-        UserEntity user = new UserEntity();
-        user.setId(1L);
-        user.setName("Test User");
-        user.setEmail(TEST_USER_EMAIL);
-        user.setRole("ROLE_USER");
-        user.setCountry("Testland");
-        user.setProvider("test-provider");
-        return user;
+    public static UserDto buildUserDto() {
+        return new UserDto(
+                "Test User",
+                TEST_USER_EMAIL,
+                "img.png",
+                "FR",
+                "test-provider",
+                "11111111",
+                List.of("ROLE_USER")
+        );
     }
 
-    public static UaaRefreshToken buildValidRefreshToken(UserEntity mockUser) {
+    public static UserDto buildUserDtoWithExpiredRefreshToken() {
+        return new UserDto(
+                "Test Expired User",
+                TEST_EXPIRED_USER_EMAIL,
+                "img.png",
+                "FR",
+                "test-provider",
+                "11111111",
+                List.of("ROLE_USER")
+        );
+    }
+
+    public static UaaRefreshToken buildValidRefreshToken(UserDto mockUser) {
         UaaRefreshToken refreshToken = new UaaRefreshToken();
         refreshToken.setId(1L);
-        refreshToken.setUser(mockUser);
+        refreshToken.setUserEmail(mockUser.email());
         refreshToken.setExpiryDate(Instant.now().plusMillis(3600000)); // Expirera dans 1 heure
         return refreshToken;
     }
@@ -137,6 +151,27 @@ public class TestsUtils {
                 .append("  \"expires_in\": 3600,\n")
                 .append("  \"refresh_token\": \"").append(refreshToken).append("\",\n")
                 .append("  \"scope\": \"").append(scope).append("\"\n")
+                .append("}");
+
+        String jsonResponse = jsonResponseBuilder.toString();
+
+        return new MockResponse()
+                .newBuilder()
+                .body(jsonResponse)
+                .addHeader("Content-Type", "application/json")
+                .build();
+    }
+
+    public static MockResponse mockServerResponseUserDto(UserDto userDto) {
+        StringBuilder jsonResponseBuilder = new StringBuilder();
+        jsonResponseBuilder.append("{\n")
+                .append("  \"name\": \"").append(userDto.name()).append("\",\n")
+                .append("  \"email\": \"").append(userDto.email()).append("\",\n")
+                .append("  \"imgUrl\": \"").append(userDto.imgUrl()).append("\",\n")
+                .append("  \"country\": \"").append(userDto.country()).append("\",\n")
+                .append("  \"provider\": \"").append(userDto.provider()).append("\",\n")
+                .append("  \"id\": \"").append(userDto.userProviderId()).append("\",\n")
+                .append("  \"roles\": [\"ROLE_USER\"]\n")
                 .append("}");
 
         String jsonResponse = jsonResponseBuilder.toString();

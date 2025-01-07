@@ -1,8 +1,6 @@
 package com.jamify.uaa.config.service;
 
-import com.jamify.uaa.domain.model.UserEntity;
-import com.jamify.uaa.service.UaaRefreshTokenService;
-import com.jamify.uaa.service.UserService;
+import com.jamify.uaa.domain.dto.UserDto;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
@@ -19,10 +17,7 @@ import java.nio.file.Files;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -65,18 +60,18 @@ public class JwtService {
      * @param user the user entity for which the token is generated
      * @return the generated JWT token
      */
-    public String generateToken(UserEntity user) {
-        log.info("Generating token for user: {}", user.getName());
+    public String generateToken(UserDto user) {
+        log.info("Generating token for user: {}", user.name());
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setHeaderParam("kid", keyId)
-                .setSubject(user.getName())
+                .setSubject(user.name())
                 .setIssuer(issuerUri)
-                .claim("email", user.getEmail())
-                .claim("roles", List.of(user.getRole()))
-                .claim("country", user.getCountry())
-                .claim("provider", user.getProvider())
-                .claim("id", user.getId())
+                .claim("email", user.email())
+                .claim("roles", user.roles())
+                .claim("country", user.country())
+                .claim("provider", user.provider())
+                .claim("id", user.userProviderId())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 86400000))
                 .signWith(key)
@@ -106,14 +101,33 @@ public class JwtService {
      * @param token the JWT token
      * @return the username (email) extracted from the token
      */
-    public String getUsernameFromToken(String token) {
-        log.debug("Getting username from token: {}", token);
+    public String getUserEmailFromToken(String token) {
+        log.debug("Getting username (user mail) from token: {}", token);
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .get("email", String.class);
+    }
+
+    public String getUserEmailFromExpiredToken(String token) {
+        try {
+            log.debug("Getting username (user mail) from possibly expired token: {}", token);
+
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("email", String.class);
+        } catch (ExpiredJwtException e) {
+            log.warn("Token has expired: {}", token);
+            return e.getClaims().get("email", String.class);
+        } catch (Exception e) {
+            log.error("Error while parsing token: {}", token, e);
+        }
+        return null;
     }
 
     /**
@@ -146,22 +160,19 @@ public class JwtService {
      * @param token the JWT token
      * @return the list of roles extracted from the token
      */
-    public List<String> getRolesFromToken(String token) {
+    public Set<String> getRolesFromToken(String token) {
         log.debug("Getting roles from token: {}", token);
-        List<?> roles = Jwts.parserBuilder()
+        Set<?> roles = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
-                .get("roles", List.class);
+                .get("roles", Set.class);
 
         if (roles != null) {
-            return roles.stream()
-                    .filter(role -> role instanceof String)
-                    .map(role -> (String) role)
-                    .collect(Collectors.toList());
+            return roles.stream().toList().stream().map(role -> (String) role).collect(Collectors.toSet());
         }
-        return Collections.emptyList();
+        return Collections.emptySet();
     }
 
     private RSAPrivateKey loadPrivateKey(File file) throws Exception {
