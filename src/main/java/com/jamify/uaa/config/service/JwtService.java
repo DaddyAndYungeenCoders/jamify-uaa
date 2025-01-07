@@ -17,10 +17,7 @@ import java.nio.file.Files;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -163,22 +160,19 @@ public class JwtService {
      * @param token the JWT token
      * @return the list of roles extracted from the token
      */
-    public List<String> getRolesFromToken(String token) {
+    public Set<String> getRolesFromToken(String token) {
         log.debug("Getting roles from token: {}", token);
-        List<?> roles = Jwts.parserBuilder()
+        Set<?> roles = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
-                .get("roles", List.class);
+                .get("roles", Set.class);
 
         if (roles != null) {
-            return roles.stream()
-                    .filter(role -> role instanceof String)
-                    .map(role -> (String) role)
-                    .collect(Collectors.toList());
+            return roles.stream().toList().stream().map(role -> (String) role).collect(Collectors.toSet());
         }
-        return Collections.emptyList();
+        return Collections.emptySet();
     }
 
     private RSAPrivateKey loadPrivateKey(File file) throws Exception {
