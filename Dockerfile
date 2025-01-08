@@ -16,6 +16,17 @@ RUN ./mvnw package -DskipTests \
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-jammy as runtime
+
+ARG SPOTIFY_CLIENT_ID
+ARG SPOTIFY_CLIENT_SECRET
+ARG AMAZON_CLIENT_ID
+ARG AMAZON_CLIENT_SECRET
+
+ENV SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+ENV SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+ENV AMAZON_CLIENT_ID=${AMAZON_CLIENT_ID}
+ENV AMAZON_CLIENT_SECRET=${AMAZON_CLIENT_SECRET}
+
 WORKDIR /app
 # Créer un utilisateur non-root
 RUN addgroup --system spring && adduser --system spring --ingroup spring

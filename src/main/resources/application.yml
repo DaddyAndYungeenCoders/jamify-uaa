@@ -80,7 +80,7 @@ logging:
     root: info
 
 gateway:
-    url: https://gateway_url_when_implemented
+    url: ${GATEWAY_HOST}
     service:
       front: /mobile-app
 
@@ -100,5 +100,6 @@ springdoc:
 
 config:
   jamify-engine:
-    url: ${JAMIFY_ENGINE_BASE_URL}
+    url:
+      base: ${JAMIFY_ENGINE_BASE_URL}
     api-key: ${JAMIFY_ENGINE_API_KEY}
