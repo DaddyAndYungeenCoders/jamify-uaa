@@ -37,7 +37,7 @@ services:
       POSTGRES_PASSWORD: postgres
       JWT_PRIVATE_KEY: classpath:private.pem
       JWK_KEY_ID: jamify-uaa-key-id
-      JAMIFY_ENGINE_BASE_URL: http://jamify-engine:8082/api/v1
+      JAMIFY_ENGINE_BASE_URL: http://jamify.daddyornot.xyz/jamify-engine/api/v1
       JAMIFY_ENGINE_API_KEY: 894daze-daz41eazLwXrrt-55rryrtnbv2-apmqFzf
       GATEWAY_HOST: https://jamify.daddyornot.xyz
     depends_on:
