@@ -111,12 +111,14 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(gatewayUrl,
-                "http://10.56.97.242:8083",
-                "http://localhost:8083",
-                "http://10.56.97.242:8081",
-                "http://localhost:5173",
-                "http:/192.168.104.121:5173")
+        configuration.setAllowedOrigins(List.of(
+                        gatewayUrl,
+                        "http://10.56.97.242:8083",
+                        "http://localhost:8083",
+                        "http://10.56.97.242:8081",
+                        "http://localhost:5173",
+                        "http:/192.168.104.121:5173"
+                )
         );
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
