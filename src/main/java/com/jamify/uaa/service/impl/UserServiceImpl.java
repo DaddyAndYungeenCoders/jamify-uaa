@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 @Service
@@ -51,8 +52,8 @@ public class UserServiceImpl implements UserService {
                 oauthUser.getCountry(),
                 provider,
                 oauthUser.getId(), // id from provider
-                roles
-
+                roles,
+                new HashSet<>()
         );
         // create user with jamify-engine
         jamifyEngineWebClient.post()
