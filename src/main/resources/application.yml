@@ -73,7 +73,7 @@ server:
     session:
       cookie:
         name: jamify-auth
-        secure: false # IMPORTANT SA RAAAAAAAACE !!!!!!!!!!!
+        secure: true
 
 logging:
   level:
