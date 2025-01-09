@@ -88,6 +88,12 @@ management:
 logging:
   level:
     root: info
+    com.jamify.uaa: debug
+    org.springframework.web: debug
+    org.springframework.security: debug
+    org.springframework.security.oauth2: trace
+    com.jamify.uaa.config.com.jamify.uaa.config.LoggingFilter: DEBUG
+
 
 gateway:
     url: ${GATEWAY_HOST}
