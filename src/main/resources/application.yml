@@ -73,7 +73,14 @@ server:
     session:
       cookie:
         name: jamify-auth
-        secure: false
+        secure: true
+        same-site: lax
+      tracking-modes: cookie
+  forward-headers-strategy: native
+  tomcat:
+    remoteip:
+      remote-ip-header: x-forwarded-for
+      protocol-header: x-forwarded-proto
 
 management:
   endpoints:

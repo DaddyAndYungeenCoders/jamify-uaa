@@ -18,7 +18,7 @@ logging:
     com.jamify.uaa.config.com.jamify.uaa.config.LoggingFilter: DEBUG
 
 gateway:
-  url: http://10.56.97.242:5173 # test front for now til gateway is implemented
+  url: http://localhost:5173 # test front for now til gateway is implemented
 #  url: http://localhost:8083 # test front for now til gateway is implemented
   service:
     front: "" # no need to add /
