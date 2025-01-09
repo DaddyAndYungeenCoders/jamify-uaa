@@ -21,6 +21,8 @@ public record UserDto(
         @Schema(description = "User provider ID", example = "123456")
         String userProviderId,
         @Schema(description = "User roles", example = "[ROLE_USER, ROLE_ADMIN]")
-        Set<String> roles
+        Set<String> roles,
+        @Schema(description = "User jams", example = "[]")
+        Set<Object> jams
 ) {
 }
