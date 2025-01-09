@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.List;
+
 @Configuration
 public class DevCorsConfig {
 
@@ -19,9 +21,9 @@ public class DevCorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins(gatewayUrl)
+                        .allowedOrigins(String.valueOf(List.of(gatewayUrl, "http://10.56.97.242:8083", "http://localhost:8083", "http://10.56.97.242:8081", "http://localhost:5173", "http://192.168.104.121:5173")))
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowCredentials(true); // Permet l'utilisation des cookies
+                        .allowCredentials(true);
             }
         };
     }

@@ -13,10 +13,12 @@ logging:
     com.jamify.uaa: debug
     org.springframework.web: debug
     org.springframework.security: debug
+    org.springframework.security.oauth2: trace
     com.jamify.uaa.config.com.jamify.uaa.config.LoggingFilter: DEBUG
 
 gateway:
-  url: http://localhost:5173 # test front for now til gateway is implemented
+  url: http://10.56.97.242:5173 # test front for now til gateway is implemented
+#  url: http://localhost:8083 # test front for now til gateway is implemented
   service:
     front: "" # no need to add /
 
@@ -31,4 +33,4 @@ config:
   jamify-engine:
     url:
      base: http://localhost:8082/api/v1
-    api-key: super-secret-dev-key
+    api-key: 894daze-daz41eazLwXrrt-55rryrtnbv2-apmqFzf
