@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
@@ -136,9 +137,20 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         String token = jwtService.generateToken(user);
         refreshTokenService.createRefreshToken(user.email());
 
-        // Redirect to the frontend with the generated jwt
-        String redirectUrl = gatewayUrl + frontendService + "/?token=" + token;
-        response.sendRedirect(redirectUrl);
+        // Respond with JWT and access token if successful
+        response.setContentType("application/json");
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        assert authorizedClient != null;
+        String responseBody = String.format("{\"jwt\": \"%s\", \"access_token\": \"%s\"}", token, authorizedClient.getAccessToken().getTokenValue());
+
+        try (PrintWriter writer = response.getWriter()) {
+            writer.write(responseBody);
+            writer.flush();
+        } catch (IOException e) {
+            log.error("Error writing response body", e);
+            throw e;
+        }
     }
 
     private UserAccessToken buildUserAccessToken(String provider, String accessToken, CustomOAuth2User oauthUser, ZonedDateTime expiresAt) {

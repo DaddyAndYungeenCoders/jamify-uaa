@@ -8,6 +8,12 @@ spring:
   liquibase:
     user: postgres
     password: postgres
+  security:
+    oauth2:
+        client:
+          registration:
+            spotify:
+              redirect-uri: "http://localhost:8081/login/oauth2/code/spotify"
 
 logging:
   level:
@@ -29,12 +35,11 @@ security:
     private-key: classpath:private.pem
     public-key: classpath:public.pem
     jwk-key-id: jamify-uaa-key-id
-
 config:
   jamify-engine:
     url:
      base: http://localhost:8082/api/v1
-    api-key: 894daze-daz41eazLwXrrt-55rryrtnbv2-apmqFzf
+    api-key: super-secret-dev-key
 
 server:
   servlet:
