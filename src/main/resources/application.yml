@@ -13,7 +13,7 @@ spring:
             authorization-grant-type: authorization_code
             redirect-uri: "https://jamify.daddyornot.xyz/login/oauth2/code/spotify"
             # https://developer.spotify.com/documentation/web-api/concepts/scopes
-            scope: user-read-email, user-read-private, playlist-read-private, playlist-read-collaborative, playlist-modify-public, playlist-modify-private, user-top-read, user-library-read, user-read-currently-playing
+            scope: user-read-email, user-read-private, playlist-read-private, playlist-read-collaborative, playlist-modify-public, playlist-modify-private, user-top-read, user-library-read, user-read-currently-playing, user-modify-playback-state, user-read-playback-state
 #          amazon:
 #            client-id: ${AMAZON_CLIENT_ID}
 #            client-secret: ${AMAZON_CLIENT_SECRET}
