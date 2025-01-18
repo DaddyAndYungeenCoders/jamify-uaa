@@ -79,29 +79,12 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         String provider = oauthToken.getAuthorizedClientRegistrationId();
 
         // Verify that the provider is in the AllowedProviders enum
-        try {
-            AllowedProviders allowedProvider = AllowedProviders.valueOf(provider.toUpperCase());
-            log.info("User {} ({}) logged in with {}", oauthUser.getName(), oauthUser.getEmail(), allowedProvider.getValue());
+        AllowedProviders allowedProvider = AllowedProviders.valueOf(provider.toUpperCase());
+        log.info("User {} ({}) logged in with {}", oauthUser.getName(), oauthUser.getEmail(), allowedProvider.getValue());
 
-            // Handling different providers, if there are different actions to be taken
-            switch (allowedProvider) {
-                case SPOTIFY:
-                    userService.sendLoggedUserToEngineForCreation(oauthUser, provider);
-                    break;
-                case AMAZON:
-                    // Add Amazon Music specific logic here
-                    // user_id, email, name, postal_code return by user_info
-                    userService.sendLoggedUserToEngineForCreation(oauthUser, provider);
-                    break;
-                case APPLE:
-                    // Add Apple Music specific logic here
-                    break;
-                default:
-                    log.warn("Unhandled provider: {}", provider);
-            }
-        } catch (IllegalArgumentException e) {
-            log.warn("Unknown provider: {}", provider);
-        }
+        // Handling different providers, if there are different actions to be taken
+
+        userService.sendLoggedUserToEngineForCreation(oauthUser, provider);
 
         // Retrieve the OAuth2AuthorizedClient
         OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
@@ -109,12 +92,37 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
                 oauthToken.getName()
         );
 
+        OAuth2AuthorizedClient clientWithEmail = null;
+
         if (authorizedClient != null) {
-            String accessToken = authorizedClient.getAccessToken().getTokenValue();
+            try {
+                // Save the authorized client with the email as the principal name - IMPORTANT !
+                clientWithEmail = new OAuth2AuthorizedClient(
+                        authorizedClient.getClientRegistration(),
+                        oauthUser.getEmail(),  // Use the email as the principal name
+                        authorizedClient.getAccessToken(),
+                        authorizedClient.getRefreshToken()
+                );
+                // Save the authorized client in a new authentication with the email as the principal name
+                Authentication emailAuthentication = new OAuth2AuthenticationToken(
+                        oauthUser,
+                        authentication.getAuthorities(),
+                        oauthToken.getAuthorizedClientRegistrationId()
+                );
+
+                // we keep the authorized client with the email as principal name, and remove the one with the user name
+                authorizedClientService.saveAuthorizedClient(clientWithEmail, emailAuthentication);
+                authorizedClientService.removeAuthorizedClient(oauthToken.getAuthorizedClientRegistrationId(), oauthToken.getName());
+            } catch (Exception e) {
+                log.error("Error while saving authorized client with email as principal name: ", e);
+            }
+
+            assert clientWithEmail != null;
+            String accessToken = clientWithEmail.getAccessToken().getTokenValue();
             log.debug("Access Token: {}", accessToken);
             // send access token to the jamify-engine microservice
             try {
-                ZonedDateTime expiresAt = ZonedDateTime.parse(Objects.requireNonNull(authorizedClient.getAccessToken().getExpiresAt()).toString());
+                ZonedDateTime expiresAt = ZonedDateTime.parse(Objects.requireNonNull(clientWithEmail.getAccessToken().getExpiresAt()).toString());
                 UserAccessToken userAccessToken = buildUserAccessToken(provider, accessToken, oauthUser, expiresAt);
 
                 // send the access token to the jamify-engine microservice so that it can be used to query the provider's API
@@ -141,8 +149,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         response.setContentType("application/json");
         response.setStatus(HttpServletResponse.SC_OK);
 
-        assert authorizedClient != null;
-        String responseBody = String.format("{\"jwt\": \"%s\", \"access_token\": \"%s\"}", token, authorizedClient.getAccessToken().getTokenValue());
+        assert clientWithEmail != null;
+        String responseBody = String.format("{\"jwt\": \"%s\", \"access_token\": \"%s\"}", token, clientWithEmail.getAccessToken().getTokenValue());
 
         try (PrintWriter writer = response.getWriter()) {
             writer.write(responseBody);
@@ -153,12 +161,13 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         }
     }
 
-    private UserAccessToken buildUserAccessToken(String provider, String accessToken, CustomOAuth2User oauthUser, ZonedDateTime expiresAt) {
+    private UserAccessToken buildUserAccessToken(String provider, String accessToken, CustomOAuth2User
+            oauthUser, ZonedDateTime expiresAt) {
         UserAccessToken userToken = new UserAccessToken();
         userToken.setProvider(provider);
         userToken.setAccessToken(accessToken);
         userToken.setEmail(oauthUser.getEmail());
-        userToken.setExpiresAt(expiresAt.toLocalDateTime());
+        userToken.setExpiresAt(expiresAt.toLocalDateTime()); // FIXME
         return userToken;
     }
 }
