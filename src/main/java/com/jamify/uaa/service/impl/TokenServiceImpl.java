@@ -30,7 +30,10 @@ public class TokenServiceImpl implements TokenService {
 
     @Override
     public Map<String, String> refreshAccessToken(String provider, String email) {
+//        User name = userService.getUserByEmail(email);
+
         OAuth2AuthorizedClient client = authorizedClientService.loadAuthorizedClient(provider, email);
+
 
         if (client == null || client.getRefreshToken() == null) {
             throw new RefreshAccessTokenException("Refresh token not found for the user");
@@ -54,11 +57,17 @@ public class TokenServiceImpl implements TokenService {
             return Map.of("error", "Failed to refresh the access token from " + provider);
         }
 
+        // handle case when refresh token is not returned, it can happen
+        OAuth2RefreshToken refreshToken = client.getRefreshToken();
+        if (response.getRefreshToken() != null) {
+            refreshToken = new OAuth2RefreshToken(response.getRefreshToken(), Instant.now());
+        }
+
         OAuth2AuthorizedClient updatedClient = new OAuth2AuthorizedClient(
                 client.getClientRegistration(),
                 client.getPrincipalName(),
                 buildOAuth2AccessTokenFromResponse(response),
-                new OAuth2RefreshToken(response.getRefreshToken(), null)
+                refreshToken
         );
 
         // todo: set authentication instead of null

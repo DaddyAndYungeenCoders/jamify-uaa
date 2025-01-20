@@ -7,6 +7,7 @@ import com.jamify.uaa.config.service.JwtService;
 import com.jamify.uaa.constants.Role;
 import com.jamify.uaa.service.UaaRefreshTokenService;
 import com.jamify.uaa.service.UserService;
+import com.jamify.uaa.service.impl.JpaOAuth2AuthorizedClientService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +16,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
@@ -91,6 +96,19 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler(UserService userService, OAuth2AuthorizedClientService authorizedClientService, UaaRefreshTokenService uaaRefreshTokenService) {
         return new CustomAuthenticationSuccessHandler(jwtService(), userService, uaaRefreshTokenService, authorizedClientService);
+    }
+
+    @Bean
+    public OAuth2AuthorizedClientService authorizedClientService(
+            ClientRegistrationRepository clientRegistrationRepository,
+            com.jamify.uaa.repository.OAuth2AuthorizedClientRepository repository) {
+        return new JpaOAuth2AuthorizedClientService(repository, clientRegistrationRepository);
+    }
+
+    @Bean
+    public OAuth2AuthorizedClientRepository authorizedClientRepository(
+            OAuth2AuthorizedClientService authorizedClientService) {
+        return new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService);
     }
 
     /**
