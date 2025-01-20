@@ -10,10 +10,13 @@ spring:
     password: postgres
   security:
     oauth2:
-        client:
+      client:
           registration:
             spotify:
               redirect-uri: "http://localhost:8081/login/oauth2/code/spotify"
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081
 
 logging:
   level:

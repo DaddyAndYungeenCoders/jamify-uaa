@@ -49,9 +49,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         if (request.getRequestURI().contains("/api/v1/auth/refresh-jwt-token") ||
-//                (request.getRequestURI().contains("/api/v1/auth/refresh-access-token") ||
+                (request.getRequestURI().contains("/api/v1/oauth/.well-known/jwks.json") ||
                 request.getRequestURI().contains("/swagger-ui/index.html") ||
-                request.getRequestURI().contains("/v3/api-docs"))
+                request.getRequestURI().contains("/v3/api-docs")))
         {
             filterChain.doFilter(request, response);
             return;
