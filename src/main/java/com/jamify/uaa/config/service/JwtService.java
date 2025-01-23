@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -72,7 +73,7 @@ public class JwtService {
                 .claim("country", user.country())
                 .claim("provider", user.provider())
                 .claim("id", user.userProviderId())
-                .setIssuedAt(new Date())
+                .setIssuedAt(Date.from(Instant.now()))
                 .setExpiration(new Date(System.currentTimeMillis() + 86400000))
                 .signWith(key)
                 .compact();
