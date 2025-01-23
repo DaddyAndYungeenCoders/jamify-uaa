@@ -34,7 +34,7 @@ public class JwksController {
                     @ApiResponse(responseCode = "200", description = "JWKS retrieved successfully."),
                     @ApiResponse(responseCode = "500", description = "Internal server error.")
             })
-    @GetMapping("/oauth/.well-known/jwks.json")
+    @GetMapping("/api/v1/oauth/.well-known/jwks.json")
     public Map<String, Object> getJwks(HttpServletRequest request) {
         String remoteAddr = request.getRemoteAddr();
         String remoteHost = request.getRemoteHost();
