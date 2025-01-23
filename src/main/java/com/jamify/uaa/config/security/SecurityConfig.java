@@ -63,7 +63,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/", "/auth/**", "/login/**", "/oauth2/**", "/oauth/.well-known/jwks.json").permitAll()
+                        .requestMatchers("/", "/auth/**", "/login/**", "/oauth2/**", "/api/v1/oauth/.well-known/jwks.json").permitAll()
                         .requestMatchers("/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**", "/v3/api-docs").permitAll()
                         .requestMatchers("/api/v1/auth/refresh-jwt-token", "/api/v1/auth/refresh-access-token").permitAll()
                         .requestMatchers("/api/v1/user").hasAuthority(Role.USER.getValue())
