@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +33,7 @@ public class JpaOAuth2AuthorizedClientService implements OAuth2AuthorizedClientS
                             OAuth2AccessToken.TokenType.BEARER,
                             entity.getAccessToken(),
                             Instant.now(),
-                            entity.getAccessTokenExpiresAt()
+                            Instant.now().plus(1, ChronoUnit.HOURS)
                     );
 
                     OAuth2RefreshToken refreshToken = null;
